@@ -13,4 +13,6 @@ public class ChattingRoom {
     private int chattingTime;
     private Timestamp createTime;
     private Timestamp deleteTime;
+    private long member1;
+    private long member2;
 }
