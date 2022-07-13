@@ -16,4 +16,5 @@ public interface MemberService {
     String[] login(Member member); // 로그인
     void updateMember(Member member); // 회원정보 수정
     void resetPassword(String email); // 비밀번호 리셋 요청
+    void quitMember(Member member); // 회원탈퇴
 }
