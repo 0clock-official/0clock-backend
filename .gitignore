@@ -38,3 +38,6 @@ out/
 
 ### application.properties ###
 application.properties
+
+### secretCodes ###
+src/main/java/com/oclock/oclock/secret/**
