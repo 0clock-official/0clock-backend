@@ -2,11 +2,13 @@ package com.oclock.oclock.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 @Getter
 @Builder
 public class Member {
     private long id;
+    @NonNull
     private String email;
     private String password;
     private long chattingRoomId;
@@ -14,7 +16,6 @@ public class Member {
     private int memberSex;
     private int matchingSex;
     private int major;
-    private String salt;
     private String nickName;
     private int joinStep;
 
