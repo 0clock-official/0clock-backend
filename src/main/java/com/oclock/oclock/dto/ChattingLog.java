@@ -14,4 +14,5 @@ public class ChattingLog {
     private long sendMember;
     private long receiveMember;
     private Timestamp chattingTime;
+    private String message;
 }
