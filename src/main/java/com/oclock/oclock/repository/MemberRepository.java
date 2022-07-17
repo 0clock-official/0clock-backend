@@ -13,5 +13,6 @@ public interface MemberRepository {
     Member selectMemberById(long id);
     Member selectMemberByEmail(String email);
     Member selectMemberByEmailAndPassword(String email, String password);
-    List<Member> selectRandomMember(Member member);
+    List<Member> selectRandomMembers(Member requestMember);
+    List<Long> selectRandomMemberIds(Member requestMember);
 }

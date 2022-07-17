@@ -29,7 +29,7 @@ public class TestChattingService implements ChattingService {
         builder.chattingTime(requestMember.getChattingTime());
         builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
         builder.member1(requestMember.getId());
-        List<Member> randomMembers = memberRepository.selectRandomMember(requestMember);
+        List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
         int randomIndex = new Random().nextInt(2);
         builder.member2(randomMembers.get(randomIndex).getId());
         ChattingRoom chattingRoom = builder.build();
@@ -47,7 +47,7 @@ public class TestChattingService implements ChattingService {
 
     @Override
     public List<Long> getRandomMemberIdList(Member requestMember) {
-        return null;
+        return memberRepository.selectRandomMemberIds(requestMember);
     }
 
     @Override
