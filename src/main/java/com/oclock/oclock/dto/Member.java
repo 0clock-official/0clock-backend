@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.math.BigInteger;
+
 @Getter
 @Builder
 public class Member {
@@ -11,7 +13,7 @@ public class Member {
     @NonNull
     private String email;
     private String password;
-    private long chattingRoomId;
+    private BigInteger chattingRoomId;
     private int chattingTime;
     private int memberSex;
     private int matchingSex;
