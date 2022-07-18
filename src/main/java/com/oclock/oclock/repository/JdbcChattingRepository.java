@@ -38,7 +38,7 @@ public class JdbcChattingRepository implements ChattingRepository{
     @Override
     public BigInteger createChattingRoom(ChattingRoom chattingRoom) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "insert into chattingRoom(chattingTime,member1,member2) select ?,?,? from chattingRoom where exists" +
+        String sql = "insert into chattingRoom(chattingTime,member1,member2) select ?,?,? from member where exists" +
                 "(select * from member where id in (?,?) and chattingRoomId is null) limit 1"; // 현재 참여중인 채팅이 없어야만 가능.
         int chattingTime = chattingRoom.getChattingTime();
         long member1 = chattingRoom.getMember1();
