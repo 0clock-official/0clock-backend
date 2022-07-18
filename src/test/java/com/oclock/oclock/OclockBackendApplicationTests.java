@@ -7,8 +7,7 @@ import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.repository.ChattingRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OclockBackendApplicationTests {
 	private Member member1 = Member.builder()
 			.id(1)
@@ -28,24 +28,27 @@ class OclockBackendApplicationTests {
 			.memberSex(Member.MemberSex.MALE)
 			.matchingSex(Member.MatchingSex.ALL)
 			.build();
-	@Test
-	void contextLoads() {
-	}
+//	@Test
+//	void contextLoads() {
+//	}
 	@Autowired
 	private ChattingRepository chattingRepository;
 
 	@Test
+	@Order(2)
 	public void addChatTest(){
-		ChattingLog chattingLog = ChattingLog.builder().sendMember(1).receiveMember(2).chattingRoomId(BigInteger.ONE).message("dasdasdasd").build();
+		ChattingLog chattingLog = ChattingLog.builder().sendMember(1).receiveMember(2).chattingRoomId(BigInteger.ONE).message("정상상태 메시지 송수신").build();
 		chattingRepository.addChatting(chattingLog);
 	}
 	@Test
+	@Order(1)
 	public void addChattingRoomTest(){
 		ChattingRoom chattingRoom = ChattingRoom.builder().chattingTime(1).member1(1).member2(2).build();
 		chattingRepository.createChattingRoom(chattingRoom);
 	}
 
 	@Test
+	@Order(3)
 	public void getChattingListTest() throws JsonProcessingException {
 		ChattingRoom chattingRoom = ChattingRoom.builder()
 				.chattingTime(member1.getChattingTime())
@@ -60,22 +63,38 @@ class OclockBackendApplicationTests {
 //			System.out.println(new ObjectMapper().writeValueAsString(chat));
 //		}
 //		System.out.println();
-		addChatTest();
+		ChattingLog chattingLog = ChattingLog.builder().sendMember(1).receiveMember(2).chattingRoomId(BigInteger.ONE).message("상태변경을 위한 메시지 송수신").build();
+		chattingRepository.addChatting(chattingLog);
+
 		List<ChattingLog> after = chattingRepository.selectChattingLogs(member1,chattingRoom,start,end);
 //		for (ChattingLog chat:after){
 //			System.out.println(new ObjectMapper().writeValueAsString(chat));
 //		}
-		Assertions.assertNotEquals(before,after);
+		Assertions.assertNotEquals(before.size(),after.size());
 	}
 
 	@Test
+	@Order(4)
 	public void exitChattingRoomTest(){
+		ChattingRoom chattingRoom = ChattingRoom.builder()
+				.chattingTime(member1.getChattingTime())
+				.member1(1)
+				.member2(2)
+				.id(BigInteger.ONE)
+				.build();
 		chattingRepository.exitChattingRoom(member1);
-		Assertions.assertThrows(Exception.class,()->addChatTest());
+		ChattingLog chattingLog = ChattingLog.builder().sendMember(1).receiveMember(2).chattingRoomId(BigInteger.ONE).message("채팅방 나간 후 메시지 송수신").build();
+		chattingRepository.addChatting(chattingLog);
+		Timestamp start = Timestamp.valueOf(LocalDateTime.now().minusDays(3));
+		Timestamp end = Timestamp.valueOf(start.toLocalDateTime().plusMonths(1));
+		List<ChattingLog> logs = chattingRepository.selectChattingLogs(member1,chattingRoom,start,end);
+		for (ChattingLog chat: logs) {
+			Assertions.assertNotEquals("채팅방 나간 후 메시지 송수신",chat.getMessage());
+		}
 	}
 
-	@Test
-	public void chattingMemberTest(){
-
-	}
+//	@Test
+//	public void chattingMemberTest(){
+//
+//	}
 }
