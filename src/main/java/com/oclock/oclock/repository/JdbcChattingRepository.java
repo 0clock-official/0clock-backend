@@ -21,12 +21,15 @@ public class JdbcChattingRepository implements ChattingRepository{
     private JdbcTemplate jdbcTemplate;
     @Override
     public void addChatting(ChattingLog chat) {
-        String sql = "insert into chattingLog(chattingRoomId,sendMember,receiveMember,message) (select ?,?,?,? from chattingRoom" +
-                " where exists(select * from chattingRoom where chattingRoom.id = ? and ((member1 = ? and member2 = ?)or(member2 = ? and member1 = ?)) and deleteTime is null) limit 1)"; //  채팅방이 열린상태이고, 채팅의 두 참여자가 모두 해당 채팅방에 참여한 경우만 insert
+//        String sql = "insert into chattingLog(chattingRoomId,sendMember,receiveMember,message) (select ?,?,?,? from chattingRoom" +
+//                " where exists(select * from chattingRoom where chattingRoom.id = ? and ((member1 = ? and member2 = ?)or(member2 = ? and member1 = ?)) and deleteTime is null limit 1) limit 1)"; //  채팅방이 열린상태이고, 채팅의 두 참여자가 모두 해당 채팅방에 참여한 경우만 insert
+        String sql = "insert into chattingLog(chattingRoomId,sendMember,receiveMember,message) " +
+                "select ?,?,?,? from dual where exists(select 'A' from chattingRoom where id = ? and member1 in (?,?) and member2 in (?,?) and deleteTime is null) " +
+                "and (select chattingRoomId from member where id = ?) = ? and (select chattingRoomId from member where id = ?) = ?";
         BigInteger chattingRoomId = chat.getChattingRoomId();
         long senderId = chat.getSendMember();
         long receiveId = chat.getReceiveMember();
-        jdbcTemplate.update(sql,chattingRoomId,senderId,receiveId,chat.getMessage(),chattingRoomId,senderId,receiveId,senderId,receiveId);
+        jdbcTemplate.update(sql,chattingRoomId,senderId,receiveId,chat.getMessage(),chattingRoomId,senderId,receiveId,senderId,receiveId,senderId,chattingRoomId,receiveId,chattingRoomId);
     }
 
     @Override
