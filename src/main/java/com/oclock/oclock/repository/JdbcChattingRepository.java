@@ -31,7 +31,7 @@ public class JdbcChattingRepository implements ChattingRepository{
 
     @Override
     public List<ChattingLog> selectChattingLogs(Member requestMember, ChattingRoom chattingRoom, Timestamp startTime, Timestamp endTime) {
-        String sql = "select * from chattingLog where chattingRoomId = ? and chattingTime >= ? and chattingTime <= ? and (sender = ? or receiver = ?)";
+        String sql = "select * from chattingLog where chattingRoomId = ? and chattingTime >= ? and chattingTime <= ? and (sendMember = ? or receiveMember = ?)";
         return jdbcTemplate.query(sql,new ChattingLogRowMapper<>(),chattingRoom.getId(),startTime,endTime,requestMember.getId(),requestMember.getId());
     }
 
@@ -60,8 +60,8 @@ public class JdbcChattingRepository implements ChattingRepository{
 
     @Override
     public void exitChattingRoom(Member member) {
-        String sql = "update member set chattingRoomID = null where id = ?";
-        jdbcTemplate.update(sql,member.getId());
+        String sql = "update member set chattingRoomID = null where chattingRoomId = ?";
+        jdbcTemplate.update(sql,member.getChattingRoomId());
     }
 
     @Override
