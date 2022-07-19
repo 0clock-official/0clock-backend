@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: create secretFile
-        run: pwd
+        run: ls
       - name: create application.properties
         run: echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> /home/runner/work/0clock-backend/0clock-backend/src/main/resources/application.properties
       - name: create test application.properties
