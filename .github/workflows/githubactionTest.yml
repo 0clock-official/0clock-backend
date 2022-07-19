@@ -25,9 +25,9 @@ jobs:
       - name: create secretFile
         run: pwd
       - name: create application.properties
-        run: echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> ./src/main/resources/application.properties
+        run: echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> src/main/resources/application.properties
       - name: create test application.properties
-        run: echo -e ${{ secrets.TESTAPPLICATIONPROPERTIES}} >> ./src/test/resources/application.properties
+        run: echo -e ${{ secrets.TESTAPPLICATIONPROPERTIES}} >> src/test/resources/application.properties
       - uses: ankane/setup-mariadb@v1
         with:
           database: ${{ secrets.DBNAME }}
