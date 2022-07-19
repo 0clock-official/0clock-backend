@@ -59,6 +59,6 @@ jobs:
       - name: DB init
         run: sudo mysql oclock < ./src/test/resources/schema.sql
       - name: mysql select
-        run: mysql -u oclockManager -p ${{ secrets.DBPASSWORD}} "select * from member;"
+        run: mysql -u oclockManager -p ${{ secrets.DBPASSWORD}} -e "select * from member;"
       - name: Build with Gradle
         run: ./gradlew clean build --stacktrace
