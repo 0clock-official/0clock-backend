@@ -57,6 +57,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: DB init
-        run: sudo mysql < ./src/test/resources/schema.sql
+        run: sudo mysql oclock < ./src/test/resources/schema.sql
       - name: Build with Gradle
         run: ./gradlew clean build
