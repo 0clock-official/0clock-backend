@@ -24,8 +24,12 @@ jobs:
     steps:
       - name: create dir
         run: sudo mkdir -p ./src/main/resources
+      - name: create test dir
+        run: sudo mkdir -p ./src/test/resources
       - name: permission 변경
         run: sudo chmod 777 ./src/main/resources
+      - name: permission 변경
+        run: sudo chmod 777 ./src/test/resources
       - name: fsdf
         run: sudo ls -alR ./src/
       - name: create application.properties
