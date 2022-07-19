@@ -26,6 +26,8 @@ jobs:
         run: sudo mkdir -p ./src/main/resources
       - name: permission 변경
         run: sudo chmod +w ./src/main/resources
+      - name: fsdf
+        run: sudo ls -l ./src/main/resources
       - name: create application.properties
         run: sudo echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> ./src/main/resources/application.properties
       - name: create test application.properties
