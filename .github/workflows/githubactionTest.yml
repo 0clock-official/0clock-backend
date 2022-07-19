@@ -43,9 +43,9 @@ jobs:
       - name: fsdf
         run: sudo ls -alR ./src/
       - name: create application.properties
-        run: sudo echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> ./src/main/resources/application.properties
+        run: sudo echo -e ${{ secrets.APPPROPERTY1}}\n${{ secrets.APPPROPERTY2}}\n${{ secrets.APPPROPERTY3}}\n${{ secrets.APPPROPERTY4}} >> ./src/main/resources/application.properties
       - name: create test application.properties
-        run: sudo echo -e ${{ secrets.TESTAPPLICATIONPROPERTIES}} >> ./src/test/resources/application.properties
+        run: sudo echo -e ${{ secrets.APPPROPERTY1}}\n${{ secrets.APPPROPERTY2}}\n${{ secrets.APPPROPERTY3}}\n${{ secrets.APPPROPERTY4}} >> ./src/test/resources/application.properties
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
