@@ -2,13 +2,10 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.exception.OClockException;
-import com.oclock.oclock.secret.SecretTool;
-import com.oclock.oclock.service.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
