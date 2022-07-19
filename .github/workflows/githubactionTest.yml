@@ -29,6 +29,7 @@ jobs:
       - uses: ankane/setup-mariadb@v1
         with:
           database: ${{ secrets.DBNAME }}
+      - name: make user
         run: sudo mysql -e ${{ secrets.CREATEDBUSERSQL}}
       - name: grant permission
         run : sudo mysql -e ${{ secrets.GRANTUSERPERMISSON}}
