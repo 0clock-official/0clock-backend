@@ -32,7 +32,7 @@ jobs:
       - name: grant permission
         run : sudo mysql -e ${{ secrets.GRANTUSERPERMISSON}}
       - name : mysql test
-        run : mysql -u ${{ secrets.DBUSER}} -p ${{ .secrets.DBPASSWORD}}
+        run : mysql -u ${{ secrets.DBUSER}} -p ${{ secrets.DBPASSWORD}}
       - uses: actions/checkout@v3
       - name: create dir
         run: sudo mkdir -p ./src/main/resources
