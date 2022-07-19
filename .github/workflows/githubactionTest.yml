@@ -36,8 +36,8 @@ jobs:
           mysql root password: ${{ secrets.RootPassword }} # Required if "mysql user" is empty, default is empty. The root superuser password
           mysql user: ${{ secrets.DBUSER }} # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
           mysql password: ${{ secrets.DBPASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
-      - name: mysql stop
-        run: sudo systemctl stop mysqld
+#      - name: mysql stop
+#        run: sudo systemctl stop mysqld
       - name: mysql start
         run: sudo systemctl start mysqld
       - name: make db
