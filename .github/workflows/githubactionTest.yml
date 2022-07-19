@@ -31,8 +31,6 @@ jobs:
         run: sudo mysql -e ${{ secrets.CREATEDBUSERSQL}}
       - name: grant permission
         run : sudo mysql -e ${{ secrets.GRANTUSERPERMISSON}}
-      - name : mysql test
-        run : mysql -u ${{ secrets.DBUSER}} -p < echo "${{ secrets.DBPASSWORD}}"
       - uses: actions/checkout@v3
       - name: create dir
         run: sudo mkdir -p ./src/main/resources
@@ -60,6 +58,8 @@ jobs:
         run: chmod +x gradlew
       - name: DB init
         run: sudo mysql oclock < ./src/test/resources/schema.sql
+      - name : mysql test
+        run : sudo mysql -e "select * from member;"
 #      - name: mysql select
 #        run: mysql -u oclockManager -p ${{ secrets.DBPASSWORD}} -e "select * from member;"
       - name: Build with Gradle
