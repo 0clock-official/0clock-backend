@@ -25,7 +25,7 @@ jobs:
       - name: create dir
         run: sudo mkdir -p ./src/main/resources
       - name: permission 변경
-        run: sudo chmod +w ./src/main/resources
+        run: sudo chmod 777 ./src/main/resources
       - name: fsdf
         run: sudo ls -al ./src/main/
       - name: create application.properties
