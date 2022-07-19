@@ -22,8 +22,8 @@ jobs:
       packages: write
 
     steps:
-#      - name: create secretFile
-#        run: echo -e ${{ secrets.SECRETTOOLCODE}} >> SecretTool.java
+      - name: create secretFile
+        run: pwd
       - name: create application.properties
         run: echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> ./src/main/resources/application.properties
       - name: create test application.properties
