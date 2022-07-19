@@ -22,16 +22,7 @@ jobs:
       packages: write
 
     steps:
-#      - name: create dir
-#        run: sudo mkdir -p ./src/main/resources
-#      - name: create test dir
-#        run: sudo mkdir -p ./src/test/resources
-#      - name: permission 변경
-#        run: sudo chmod 777 ./src/main/resources
-#      - name: permission 변경
-#        run: sudo chmod 777 ./src/test/resources
-#      - name: fsdf
-#        run: sudo ls -alR ./src/
+
 
       - uses: ankane/setup-mariadb@v1
         with:
@@ -41,6 +32,16 @@ jobs:
       - name: grant permission
         run : sudo mysql -e ${{ secrets.GRANTUSERPERMISSON}}
       - uses: actions/checkout@v3
+      - name: create dir
+        run: sudo mkdir -p ./src/main/resources
+      - name: create test dir
+        run: sudo mkdir -p ./src/test/resources
+      - name: permission 변경
+        run: sudo chmod 777 ./src/main/resources
+      - name: permission 변경
+        run: sudo chmod 777 ./src/test/resources
+      - name: fsdf
+        run: sudo ls -alR ./src/
       - name: create application.properties
         run: sudo echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> ./src/main/resources/application.properties
       - name: create test application.properties
