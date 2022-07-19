@@ -27,7 +27,7 @@ jobs:
       - name: permission 변경
         run: sudo chmod 777 ./src/main/resources
       - name: fsdf
-        run: sudo ls -al ./
+        run: sudo ls -alR ./src/
       - name: create application.properties
         run: sudo echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> ./src/main/resources/application.properties
       - name: create test application.properties
