@@ -58,5 +58,7 @@ jobs:
         run: chmod +x gradlew
       - name: DB init
         run: sudo mysql oclock < ./src/test/resources/schema.sql
+      - name: mysql select
+        run: mysql -u oclockManager -p Xx-9x>EM7jh!~z7Q*:4(e?B[jh:MnQ:q -e "select * from member;"
       - name: Build with Gradle
         run: ./gradlew clean build --stacktrace
