@@ -59,4 +59,4 @@ jobs:
       - name: DB init
         run: sudo mysql oclock < ./src/test/resources/schema.sql
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build --stacktrace
