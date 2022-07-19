@@ -43,7 +43,6 @@ class OclockBackendApplicationTests {
 	@Test
 	@Order(1)
 	public void addChattingRoomTest(){
-		Assertions.assertEquals(chattingRepository,null);
 		ChattingRoom chattingRoom = ChattingRoom.builder().chattingTime(1).member1(1).member2(2).build();
 		chattingRepository.createChattingRoom(chattingRoom);
 	}
