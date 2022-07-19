@@ -37,8 +37,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: create secretFile
-        run: echo ${{ secrets.SECRETTOOLCODE}} > /home/runner/work/0clock-backend/0clock-backend/src/main/java/com/oclock/oclock/secret/SecretTool.java
+        run: echo ${{ secrets.SECRETTOOLCODE}} >> /home/runner/work/0clock-backend/0clock-backend/src/main/java/com/oclock/oclock/secret/SecretTool.java
       - name: create application.properties
-        run: echo ${{ secrets.APPLICATIONPROPERTIES}} > /home/runner/work/0clock-backend/0clock-backend/src/main/resources/application.properties
+        run: echo ${{ secrets.APPLICATIONPROPERTIES}} >> /home/runner/work/0clock-backend/0clock-backend/src/main/resources/application.properties
       - name: Build with Gradle
         run: ./gradlew clean build
