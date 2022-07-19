@@ -22,14 +22,10 @@ jobs:
       packages: write
 
     steps:
-      - name: test
-        run: ls >> lsResult.txt
-      - name: test2
-        run: cat lsResult.txt
       - name: create secretFile
-        run: echo ${{ secrets.SECRETTOOLCODE}} >> SecretTool.java
+        run: echo -e ${{ secrets.SECRETTOOLCODE}} >> SecretTool.java
       - name: create application.properties
-        run: echo ${{ secrets.APPLICATIONPROPERTIES}} >> application.properties
+        run: echo -e ${{ secrets.APPLICATIONPROPERTIES}} >> application.properties
       - uses: ankane/setup-mariadb@v1
         with:
           database: ${{ secrets.DBNAME }}
