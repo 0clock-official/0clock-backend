@@ -15,4 +15,5 @@ public interface ChattingRepository {
     void exitChattingRoom(Member member);
     Member selectChattingMember(Member requestMember);
     void updateChattingRoomTime(Member requestMember);
+    ChattingRoom selectChattingRoom(Member requestMember, BigInteger chattingRoomId);
 }

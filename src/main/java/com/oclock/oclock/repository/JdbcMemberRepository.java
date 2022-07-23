@@ -2,12 +2,10 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.exception.OClockException;
+import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 
@@ -64,7 +62,7 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public List<Member> selectRandomMembers(Member requestMember) {
-        String sql = "select * from member where chattingRoomId = null and abs(chattingTime-?)<=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
+        String sql = "select * from member where chattingRoomId = null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
         if(requestMember.getMatchingSex() == Member.MatchingSex.ALL){
             sql = sql.replace(" and memberSex = ?","");
             return jdbcTemplate.query(sql,new MemberRowMapperNoEmailAndChattingRoom<>(),requestMember.getChattingTime(),requestMember.getMemberSex(),requestMember.getMajor());
@@ -74,42 +72,12 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public List<Long> selectRandomMemberIds(Member requestMember) {
-        String sql = "select id from member where chattingRoomId = null and abs(chattingTime-?)<=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
+        String sql = "select id from member where chattingRoomId = null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
         if(requestMember.getMatchingSex() == Member.MatchingSex.ALL){
             sql = sql.replace(" and memberSex = ?","");
             return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("id"), requestMember.getChattingTime(), requestMember.getMemberSex(), requestMember.getMajor());
         }
         return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getLong("id"),requestMember.getChattingTime(),requestMember.getMatchingSex(),requestMember.getMemberSex(),requestMember.getMajor());
     }
-
-    public static class MemberRowMapperNoEmailAndChattingRoom<T extends Member> implements RowMapper<T>{
-
-        @Override
-        public T mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Member.MemberBuilder builder = Member.builder();
-            builder.id(rs.getLong("id"))
-                    .memberSex(rs.getInt("memberSex"))
-                    .major(rs.getInt("major"))
-                    .chattingTime(rs.getInt("chattingTime"))
-                    .nickName(rs.getString("nickName"));
-            return (T) builder.build();
-        }
-    }
-
-    public static class MemberRowMapper<T extends Member> implements RowMapper<T>{
-
-        @Override
-        public T mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Member.MemberBuilder builder = Member.builder();
-            builder.id(rs.getLong("id"))
-                    .memberSex(rs.getInt("memberSex"))
-                    .major(rs.getInt("major"))
-                    .chattingTime(rs.getInt("chattingTime"))
-                    .nickName(rs.getString("nickName"))
-                    .email(rs.getString("email"))
-                    .chattingRoomId(rs.getBigDecimal("chattingRoomId").toBigInteger())
-                    .matchingSex(rs.getInt("matchingSex"));
-            return (T) builder.build();
-        }
-    }
 }
+

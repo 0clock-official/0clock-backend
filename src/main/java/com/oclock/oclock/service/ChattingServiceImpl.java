@@ -5,7 +5,10 @@ import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.repository.ChattingRepository;
+import com.oclock.oclock.repository.JdbcChattingRepository;
+import com.oclock.oclock.repository.JdbcMemberRepository;
 import com.oclock.oclock.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -15,8 +18,10 @@ import java.util.Random;
 
 public class ChattingServiceImpl implements ChattingService {
 
-    private ChattingRepository chattingRepository;
-    private MemberRepository memberRepository;
+    @Autowired
+    private JdbcChattingRepository chattingRepository;
+    @Autowired
+    private JdbcMemberRepository memberRepository;
 
     @Override
     public void sendMessage(ChattingLog message) {
@@ -26,12 +31,13 @@ public class ChattingServiceImpl implements ChattingService {
     @Override
     public BigInteger randomMatching(Member requestMember) {
         ChattingRoom.ChattingRoomBuilder builder = ChattingRoom.builder();
-        builder.chattingTime(requestMember.getChattingTime());
         builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
         builder.member1(requestMember.getId());
         List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
         int randomIndex = new Random().nextInt(2);
-        builder.member2(randomMembers.get(randomIndex).getId());
+        Member member = randomMembers.get(randomIndex);
+        builder.member2(member.getId());
+        builder.chattingTime(member.getChattingTime()); // 요청한 사람의 채팅시간보다 커야 서로 시간이 겹친다. 겹치는 시간중 가장 빠른 시간은 상대의 채팅시간이다.
         ChattingRoom chattingRoom = builder.build();
         return chattingRepository.createChattingRoom(chattingRoom);
     }
@@ -42,6 +48,8 @@ public class ChattingServiceImpl implements ChattingService {
         builder.member1(requestMemberId);
         builder.member2(guestMemberId);
         builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
+        Member guestMember = memberRepository.selectMemberById(guestMemberId);
+        builder.chattingTime(guestMember.getChattingTime());
         return chattingRepository.createChattingRoom(builder.build());
     }
 
@@ -82,5 +90,10 @@ public class ChattingServiceImpl implements ChattingService {
     @Override
     public void changeChattingTime(Member requestMember) {
         chattingRepository.updateChattingRoomTime(requestMember);
+    }
+
+    @Override
+    public ChattingRoom getChattingRoom(Member requestMember, BigInteger chattingRoomId) {
+        return chattingRepository.selectChattingRoom(requestMember,chattingRoomId);
     }
 }

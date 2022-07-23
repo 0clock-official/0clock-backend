@@ -3,10 +3,11 @@ package com.oclock.oclock.repository;
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
-import com.oclock.oclock.exception.OClockException;
+import com.oclock.oclock.rowmapper.ChattingLogRowMapper;
+import com.oclock.oclock.rowmapper.ChattingRoomRowMapper;
+import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -79,7 +80,7 @@ public class JdbcChattingRepository implements ChattingRepository{
                 "id = (select member1 from chattingRoom where id = (select chattingRoomId from member where id = ?))" +
                 ")";
         long id = requestMember.getId();
-        return jdbcTemplate.query(sql, new JdbcMemberRepository.MemberRowMapperNoEmailAndChattingRoom<Member>(),id,id,id).get(0);
+        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),id,id,id).get(0);
     }
 
     @Override
@@ -87,17 +88,9 @@ public class JdbcChattingRepository implements ChattingRepository{
 
     }
 
-    class ChattingLogRowMapper<T extends ChattingLog> implements RowMapper<T>{
-        @Override
-        public T mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ChattingLog.ChattingLogBuilder builder = ChattingLog.builder();
-            builder.message(rs.getString("message"))
-                    .chattingTime(rs.getTimestamp("chattingTime"))
-                    .id(rs.getBigDecimal("id").toBigInteger())
-                    .chattingRoomId(rs.getBigDecimal("chattingRoomId").toBigInteger())
-                    .receiveMember(rs.getLong("receiveMember"))
-                    .sendMember(rs.getLong("sendMember"));
-            return (T) builder.build();
-        }
+    @Override
+    public ChattingRoom selectChattingRoom(Member requestMember, BigInteger chattingRoomId) {
+        String sql = "select * from chattingRoom where id = ? and ? in (member1,member2)";
+        return jdbcTemplate.queryForObject(sql,new ChattingRoomRowMapper<ChattingRoom>(),chattingRoomId,requestMember.getId());
     }
 }

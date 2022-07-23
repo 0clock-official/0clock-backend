@@ -18,4 +18,6 @@ public interface ChattingService {
     Member getChattingMember(Member requestMember); // 채팅 상대방 프로필 보기. 현재 참여중인 채팅방만 가능.
     void exitChattingRoom(Member requestMember); // 채팅방 나가기
     void changeChattingTime(Member requestMember); // 채팅방 채팅 시간 변경
+
+    ChattingRoom getChattingRoom(Member requestMember, BigInteger chattingRoomId);
 }
