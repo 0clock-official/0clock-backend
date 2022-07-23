@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
-public class TestChattingService implements ChattingService {
+public class ChattingServiceImpl implements ChattingService {
 
     private ChattingRepository chattingRepository;
     private MemberRepository memberRepository;
