@@ -66,6 +66,8 @@ public class JdbcChattingRepository implements ChattingRepository{
     public void exitChattingRoom(Member member) {
         String sql = "update member set chattingRoomID = null where chattingRoomId = ?";
         jdbcTemplate.update(sql,member.getChattingRoomId());
+        sql = "update chattingRoom set deleteTime = current_timestamp() where id =?";
+        jdbcTemplate.update(sql,member.getChattingRoomId());
     }
 
     @Override
@@ -92,5 +94,11 @@ public class JdbcChattingRepository implements ChattingRepository{
     public ChattingRoom selectChattingRoom(Member requestMember, BigInteger chattingRoomId) {
         String sql = "select * from chattingRoom where id = ? and ? in (member1,member2)";
         return jdbcTemplate.queryForObject(sql,new ChattingRoomRowMapper<ChattingRoom>(),chattingRoomId,requestMember.getId());
+    }
+
+    @Override
+    public ChattingRoom selectChattingRoom(Member requestMember) {
+        String sql = "select * from chattingRoom where ? in (member1,member2) and deleteTime is null";
+        return jdbcTemplate.queryForObject(sql,new ChattingRoomRowMapper<ChattingRoom>(),requestMember.getId());
     }
 }

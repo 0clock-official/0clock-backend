@@ -9,13 +9,14 @@ import com.oclock.oclock.repository.JdbcChattingRepository;
 import com.oclock.oclock.repository.JdbcMemberRepository;
 import com.oclock.oclock.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
-
+@Service
 public class ChattingServiceImpl implements ChattingService {
 
     @Autowired
@@ -95,5 +96,10 @@ public class ChattingServiceImpl implements ChattingService {
     @Override
     public ChattingRoom getChattingRoom(Member requestMember, BigInteger chattingRoomId) {
         return chattingRepository.selectChattingRoom(requestMember,chattingRoomId);
+    }
+
+    @Override
+    public ChattingRoom getChattingRoom(Member requestMember) {
+        return chattingRepository.selectChattingRoom(requestMember);
     }
 }

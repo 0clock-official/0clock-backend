@@ -20,4 +20,5 @@ public interface ChattingService {
     void changeChattingTime(Member requestMember); // 채팅방 채팅 시간 변경
 
     ChattingRoom getChattingRoom(Member requestMember, BigInteger chattingRoomId);
+    ChattingRoom getChattingRoom(Member requestMember);
 }

@@ -2,7 +2,7 @@ package com.oclock.oclock.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.Setter;
 
 import java.math.BigInteger;
 
@@ -10,9 +10,9 @@ import java.math.BigInteger;
 @Builder
 public class Member {
     private long id;
-    @NonNull
     private String email;
     private String password;
+    @Setter
     private BigInteger chattingRoomId;
     private int chattingTime;
     private int memberSex;

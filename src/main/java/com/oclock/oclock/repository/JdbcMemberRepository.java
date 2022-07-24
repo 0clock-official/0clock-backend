@@ -5,10 +5,11 @@ import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Random;
-
+@Repository
 public class JdbcMemberRepository implements MemberRepository{
 
     @Autowired
@@ -62,7 +63,7 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public List<Member> selectRandomMembers(Member requestMember) {
-        String sql = "select * from member where chattingRoomId = null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
+        String sql = "select * from member where chattingRoomId is null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
         if(requestMember.getMatchingSex() == Member.MatchingSex.ALL){
             sql = sql.replace(" and memberSex = ?","");
             return jdbcTemplate.query(sql,new MemberRowMapperNoEmailAndChattingRoom<>(),requestMember.getChattingTime(),requestMember.getMemberSex(),requestMember.getMajor());
@@ -72,7 +73,7 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public List<Long> selectRandomMemberIds(Member requestMember) {
-        String sql = "select id from member where chattingRoomId = null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
+        String sql = "select id from member where chattingRoomId is null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
         if(requestMember.getMatchingSex() == Member.MatchingSex.ALL){
             sql = sql.replace(" and memberSex = ?","");
             return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("id"), requestMember.getChattingTime(), requestMember.getMemberSex(), requestMember.getMajor());

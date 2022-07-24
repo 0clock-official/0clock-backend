@@ -15,7 +15,9 @@ public class MemberRowMapperNoEmailAndChattingRoom<T extends Member> implements 
                 .memberSex(rs.getInt("memberSex"))
                 .major(rs.getInt("major"))
                 .chattingTime(rs.getInt("chattingTime"))
-                .nickName(rs.getString("nickName"));
+                .nickName(rs.getString("nickName"))
+                .matchingSex(rs.getInt("matchingSex"))
+                .joinStep(rs.getInt("joinStep"));
         return (T) builder.build();
     }
 }
