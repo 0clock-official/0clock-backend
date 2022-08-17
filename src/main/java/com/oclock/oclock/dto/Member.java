@@ -1,5 +1,6 @@
 package com.oclock.oclock.dto;
 
+import com.oclock.oclock.model.Email;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import java.math.BigInteger;
 @Builder
 public class Member {
     private long id;
-    private String email;
+    private Email email;
     private String password;
     @Setter
     private BigInteger chattingRoomId;
