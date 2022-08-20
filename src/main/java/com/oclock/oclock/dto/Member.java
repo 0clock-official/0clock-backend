@@ -1,6 +1,7 @@
 package com.oclock.oclock.dto;
 
 import com.oclock.oclock.model.Email;
+import com.oclock.oclock.security.Jwt;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,5 +39,10 @@ public class Member {
         public static final int SEND_STUDENT_CARD = 4;
         public static final int SETTING_PRIVACY = 5;
         public static final int END = 6;
+    }
+
+    public String newApiToken(Jwt jwt, String[] roles) {
+        Jwt.Claims claims = Jwt.Claims.of(id, nickName, email, roles);
+        return jwt.newToken(claims);
     }
 }
