@@ -1,13 +1,11 @@
 package com.oclock.oclock.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@Builder
 public class ApiError {
     private final String message;
 

@@ -32,6 +32,11 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    public boolean checkEmail(Email email) {
+        return false;
+    }
+
+    @Override
     public void joinWithToken(String token, String password) {
 
     }
