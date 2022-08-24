@@ -9,8 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-
+@NoArgsConstructor
 public class OClockException extends RuntimeException{
+
+    public OClockException(String chatting_decrypt_fail) {
+        super(chatting_decrypt_fail);
+    }
+
 
     @Getter
     @NoArgsConstructor
