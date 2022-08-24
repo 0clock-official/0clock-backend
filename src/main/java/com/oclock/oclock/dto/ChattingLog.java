@@ -2,6 +2,7 @@ package com.oclock.oclock.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -14,5 +15,6 @@ public class ChattingLog {
     private long sendMember;
     private long receiveMember;
     private Timestamp chattingTime;
+    @Setter
     private String message;
 }
