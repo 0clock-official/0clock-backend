@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Service
-public class MemberServiceImpl implements MemberService{
+public class MemberServiceImpl implements MemberService {
 
     //private final PasswordEncoder passwordEncoder;
 
@@ -22,13 +24,13 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public int getJoinStep(Email email) {
-        return 0;
+    public Member join(Email email, String password) {
+        return null;
     }
 
     @Override
-    public Member join(Email email, String password) {
-        return null;
+    public int checkJoinStep(Email email) {
+        return memberRepository.checkJoinStep(email.toString());
     }
 
     @Override
@@ -37,17 +39,25 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    public Member findById(Long id) {
+        checkArgument(id != null, "Id must be provided.");
+
+        return memberRepository.selectMemberById(id);
+    }
+
+    @Override
     public void joinWithToken(String token, String password) {
 
     }
 
     @Override
-    public Optional<File> joinStep4(File image) {
-        return Optional.empty();
+    public File joinStep4(File image) {
+        return image;
     }
 
+
     @Override
-    public Member joinAsMember(Member member) {
+    public Boolean deleteAccount(Long id) {
         return null;
     }
 
@@ -63,11 +73,6 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public void resetPassword(String email) {
-
-    }
-
-    @Override
-    public void closeAccount(Member member) {
 
     }
 }

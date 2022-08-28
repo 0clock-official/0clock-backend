@@ -4,8 +4,11 @@ import com.oclock.oclock.dto.Major;
 import com.oclock.oclock.dto.Member;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository {
+
+    int checkJoinStep(String email);
     void addMemberEmail(String email);
     void compareMemberEmailCode(String email, String code);
     void addMemberPassword(Member member);

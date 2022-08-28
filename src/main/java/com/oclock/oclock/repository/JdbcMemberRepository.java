@@ -1,20 +1,32 @@
 package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.error.ErrorCode;
+import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+
+@Slf4j
 @Repository
 public class JdbcMemberRepository implements MemberRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    //TODO null 값 처리 해주어야함
+    @Override
+    public int checkJoinStep(String email) {
+        return selectMemberByEmail(email).getJoinStep();
+    }
+    //TODO 선생님 이게 뭐에요
     @Override
     public void addMemberEmail(String email) {
         String sql = "insert into emailCode values(?,?)";
@@ -46,19 +58,43 @@ public class JdbcMemberRepository implements MemberRepository{
     @Override
     public Member selectMemberById(long id) {
         String sql = "select * from member where id = ?";
-        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),id).get(0);
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),id);
+        } catch (Exception e) {
+            final String msg = "해당 id의 유저가 없습니다. [id:" + id + "]";
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
     }
 
     @Override
     public Member selectMemberByEmail(String email) {
         String sql = "select * from member where email = ?";
-        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email).get(0);
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+        } catch (Exception e) {
+            final String msg = "해당 이메일의 유저가 없습니다. [email:" + email + "]";
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
     }
 
     @Override
     public Member selectMemberByEmailAndPassword(String email, String password) {
         String sql = "select * from member where email = ? and password = ?";
-        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email).get(0);
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+        } catch (Exception e) {
+            final String msg = "해당 이메일과 비밀번호를 가진 유저가 없습니다. [email:" + email + "] [password:" + password;
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
     }
 
     @Override

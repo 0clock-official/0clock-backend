@@ -41,6 +41,19 @@ public class Member {
         public static final int END = 6;
     }
 
+    public Member(long id, Email email, String password, BigInteger chattingRoomId, int chattingTime, int memberSex, int matchingSex, int major, String nickName, int joinStep) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.chattingRoomId = chattingRoomId;
+        this.chattingTime = chattingTime;
+        this.memberSex = memberSex;
+        this.matchingSex = matchingSex;
+        this.major = major;
+        this.nickName = nickName;
+        this.joinStep = joinStep;
+    }
+
     public String newApiToken(Jwt jwt, String[] roles) {
         Jwt.Claims claims = Jwt.Claims.of(id, nickName, email, roles);
         return jwt.newToken(claims);
