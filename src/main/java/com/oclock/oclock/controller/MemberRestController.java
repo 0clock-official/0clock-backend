@@ -10,6 +10,8 @@ import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,16 +24,12 @@ import static com.oclock.oclock.dto.ApiResult.OK;
 @RestController
 @RequestMapping("members")
 @Api(tags = "사용자 APIs")
+@RequiredArgsConstructor
 public class MemberRestController {
 
     private final Jwt jwt;
 
     private final MemberService memberService;
-
-    public MemberRestController(Jwt jwt, MemberService memberService) {
-        this.jwt = jwt;
-        this.memberService = memberService;
-    }
 
     @GetMapping(path = "join/{email}/state")
     @ApiOperation(value = "회원가입 단계 확인")
