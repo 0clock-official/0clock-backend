@@ -7,6 +7,7 @@ import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.repository.JdbcMemberRepository;
 import com.oclock.oclock.repository.MemberRepository;
+import com.oclock.oclock.secret.SecretTool;
 import com.oclock.oclock.service.ChattingServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -29,6 +31,8 @@ public class ChattingServiceTest {
     ChattingServiceImpl chattingService;
     @Autowired
     JdbcMemberRepository memberRepository;
+    @Autowired
+    SecretTool secretTool;
     @Test
     @Order(1)
     public void 채팅방선택생성및조회테스트(){
@@ -69,7 +73,12 @@ public class ChattingServiceTest {
                 .receiveMember(receiver)
                 .message("adadsdd")
                 .build();
-        chattingService.sendMessage(chattingLog);
+        chattingService.sendMessage(chattingLog); // 채팅 전송, 채팅이 암호화된 상태
+        Assertions.assertThat(chattingLog.getMessage()).isNotEqualTo("adadsdd");
+        List<ChattingLog> beforeSendChatting = new ArrayList<>();
+        beforeSendChatting.add(chattingLog);
+        secretTool.decryptChatting(beforeSendChatting); // 전송한 메시지를 다시 복호화
+        chattingLog = beforeSendChatting.get(0);
         List<ChattingLog> chattingLogs = chattingService.getMonthlyChattingLogs(requestMember,chattingRoom, Timestamp.valueOf(LocalDateTime.now().minusHours(1)));
         int count =0;
         for (ChattingLog chat : chattingLogs){
