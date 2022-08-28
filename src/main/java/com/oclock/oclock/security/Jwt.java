@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oclock.oclock.model.Email;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Date;
 
-
+@Getter
 public final class Jwt {
     private final String issuer;
 
@@ -63,26 +64,6 @@ public final class Jwt {
 
     public Claims verify(String token) throws JWTVerificationException {
         return new Claims(jwtVerifier.verify(token));
-    }
-
-    public String getIssuer() {
-        return issuer;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public int getExpirySeconds() {
-        return expirySeconds;
-    }
-
-    public Algorithm getAlgorithm() {
-        return algorithm;
-    }
-
-    public JWTVerifier getJwtVerifier() {
-        return jwtVerifier;
     }
 
     static public class Claims {
@@ -141,7 +122,7 @@ public final class Jwt {
         @Override
         public String toString() {
             return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                    .append("memberKey", userKey)
+                    .append("userKey", userKey)
                     .append("name", name)
                     .append("email", email)
                     .append("roles", Arrays.toString(roles))

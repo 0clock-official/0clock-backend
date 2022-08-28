@@ -1,6 +1,6 @@
 package com.oclock.oclock.security;
 
-import com.oclock.oclock.model.Email;
+import  com.oclock.oclock.model.Email;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;

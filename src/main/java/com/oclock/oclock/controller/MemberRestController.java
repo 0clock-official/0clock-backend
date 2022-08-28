@@ -10,6 +10,7 @@ import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ import static com.oclock.oclock.dto.ApiResult.OK;
 @RestController
 @RequestMapping("members")
 @Api(tags = "사용자 APIs")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MemberRestController {
 
     private final Jwt jwt;

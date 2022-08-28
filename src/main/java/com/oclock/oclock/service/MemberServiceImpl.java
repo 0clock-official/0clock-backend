@@ -3,7 +3,9 @@ package com.oclock.oclock.service;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -12,16 +14,11 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Service
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    //private final PasswordEncoder passwordEncoder;
-
-    @Autowired
+    private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-
-    public MemberServiceImpl(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
 
     @Override
     public Member join(Email email, String password) {

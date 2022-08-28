@@ -46,15 +46,13 @@ class MemberRestControllerTest {
     public void setMockMvc(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }
-//    @MockBean
-//    MemberService memberService;
 
     @Test
     @WithMockJwtAuthentication
     @DisplayName("내 정보 조회 성공 테스트 (토큰이 올바른 경우)")
     void meSuccessTest() throws Exception {
         ResultActions result = mockMvc.perform(
-                get("/api/user/me")
+                get("/members/")
                         .accept(MediaType.APPLICATION_JSON)
         );
         result.andDo(print())
@@ -62,8 +60,8 @@ class MemberRestControllerTest {
                 .andExpect(handler().handlerType(MemberRestController.class))
                 .andExpect(handler().methodName("me"))
                 .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.response.name", is("tester00")))
-                .andExpect(jsonPath("$.response.email.address", is("test00@gmail.com")))
+                .andExpect(jsonPath("$.response.email.address", is("test@gmail.com")))
+                .andExpect(jsonPath("$.response.name", is("test")))
         ;
     }
 

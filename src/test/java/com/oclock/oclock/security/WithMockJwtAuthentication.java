@@ -12,9 +12,9 @@ public @interface WithMockJwtAuthentication {
 
     long id() default 1L;
 
-    String name() default "tester00";
+    String name() default "test";
 
-    String email() default "tester00@gmail.com";
+    String email() default "test@gmail.com";
 
     String role() default "ROLE_USER";
 
