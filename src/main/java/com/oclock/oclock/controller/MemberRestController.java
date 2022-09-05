@@ -2,7 +2,6 @@ package com.oclock.oclock.controller;
 
 import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
-import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.security.Jwt;
 import com.oclock.oclock.security.JwtAuthentication;
@@ -11,8 +10,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
