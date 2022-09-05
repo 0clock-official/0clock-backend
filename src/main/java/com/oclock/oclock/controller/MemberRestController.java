@@ -34,7 +34,7 @@ public class MemberRestController {
     public ResponseEntity<ResponseDto> checkJoinStep(@PathVariable String email) {
         int step = memberService.checkJoinStep(new Email(email));
         ResponseDto<Integer> response = ResponseDto.<Integer>builder()
-                .success(true)
+                .code("200")
                 .response("회원가입 단계 확인")
                 .data(step)
                 .build();
@@ -47,7 +47,7 @@ public class MemberRestController {
     ) {
         Email email = new Email(request.get("email"));
         ResponseDto<Email> response = ResponseDto.<Email>builder()
-                .success(true)
+                .code("200")
                 .response("이메일 인증")
                 .data(email)
                 .build();
@@ -61,7 +61,7 @@ public class MemberRestController {
         Email email = new Email(request.get("email"));
         String code = request.get("code");
         ResponseDto<Email> response = ResponseDto.<Email>builder()
-                .success(true)
+                .code("200")
                 .response("인증 코드 인증")
                 .data(email)
                 .build();
@@ -77,7 +77,7 @@ public class MemberRestController {
         String token = request.get("token");
         String password = request.get("password");
         ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
-                .success(true)
+                .code("200")
                 .response("비밀번호 입력")
                 .data(true)
                 .build();
@@ -89,7 +89,7 @@ public class MemberRestController {
     public ResponseEntity<ResponseDto> saveIdCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody File file) {
 
         ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
-                .success(true)
+                .code("200")
                 .response("학생증 등록")
                 .data(true)
                 .build();
@@ -100,7 +100,7 @@ public class MemberRestController {
     @ApiOperation(value = "닉네임, 전공, 채팅시간, 성별 입력")
     public ResponseEntity<ResponseDto> savePassword(@AuthenticationPrincipal JwtAuthentication authentication) {
         ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
-                .success(true)
+                .code("200")
                 .response("개인 정보 변경")
                 .data(true)
                 .build();
