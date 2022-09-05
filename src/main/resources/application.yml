@@ -26,7 +26,7 @@ spring:
       mode: always
       platform: h2
       schema-locations: classpath:schema-h2.sql
-#      data-locations: classpath:data-h2.sql
+      data-locations: classpath:data-h2.sql
 server:
   port: 8080
 jwt:

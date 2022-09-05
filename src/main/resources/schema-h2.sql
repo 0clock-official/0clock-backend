@@ -1,4 +1,3 @@
-SET foreign_key_checks = 0;
 drop TABLE if EXISTS chattingLog;
 drop TABLE if EXISTS chattingRoom;
 drop TABLE if EXISTS chattingTime;
@@ -82,34 +81,3 @@ CREATE TABLE `member` (
 ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
 ALTER TABLE `member` ADD CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`);
---INSERT INTO chattingTime VALUES
---(1,'22:00:00'),
---(2,'22:30:00'),
---(3,'23:00:00'),
---(4,'23:30:00'),
---(5,'00:00:00'),
---(6,'00:30:00'),
---(7,'01:00:00'),
---(8,'01:30:00'),
---(9,'02:00:00');
-
---INSERT INTO major VALUES
---(1,'cs');
---INSERT INTO `memberSex` VALUES
---(1,'male'),
---(2,'female');
---INSERT INTO `matchingSex` VALUES
---(1,'male'),
---(2,'female'),
---(3,'all');
-SET foreign_key_checks = 1;
---insert into member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
---values("test@test.com","dasda",NULL,1,1,3,1,"test1",6);
---insert into member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
---values("test2@test.com","dasda",NULL,1,2,3,1,"test2",6);
---insert into member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
---values("test3@test.com","dasda",NULL,1,2,2,1,"test3",6);
---insert into member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
---values("test4@test.com","dasda",NULL,1,1,1,1,"test4",6);
---insert into member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
---values("test5@test.com","dasda",NULL,1,2,1,1,"test5",6);
