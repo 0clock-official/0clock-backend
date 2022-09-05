@@ -17,7 +17,11 @@ CREATE TABLE `chattingLog` (
   `message` longtext NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
+CREATE TABLE `chattingTime` (
+  `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
+  `startTime` time NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `chattingRoom` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `chattingTime` tinyint(4) unsigned NOT NULL,
@@ -29,14 +33,7 @@ CREATE TABLE `chattingRoom` (
   KEY `chattingTime` (`chattingTime`),
   KEY `member1` (`member1`),
   KEY `member2` (`member2`),
---  CONSTRAINT `chattingroom_ibfk_1` FOREIGN KEY (`chattingTime`) REFERENCES `chattingTime` (`id`),
---  CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`),
---  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-CREATE TABLE `chattingTime` (
-  `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
-  `startTime` time NOT NULL,
-  PRIMARY KEY (`id`)
+  CONSTRAINT `chattingroom_ibfk_1` FOREIGN KEY (`chattingTime`) REFERENCES `chattingTime` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `emailCode` (
   `email` varchar(320) NOT NULL DEFAULT '',
@@ -53,7 +50,11 @@ CREATE TABLE `matchingSex` (
   `value` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
+CREATE TABLE `memberSex` (
+  `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
+  `value` varchar(32) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `member` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(320) NOT NULL DEFAULT '',
@@ -78,11 +79,9 @@ CREATE TABLE `member` (
   CONSTRAINT `member_ibfk_5` FOREIGN KEY (`matchingSex`) REFERENCES `matchingSex` (`id`),
   CONSTRAINT `member_ibfk_6` FOREIGN KEY (`chattingRoomId`) REFERENCES `chattingRoom` (`id`) ON DELETE SET NULL ON UPDATE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-CREATE TABLE `memberSex` (
-  `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
-  `value` varchar(32) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
+ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
+ALTER TABLE `member` ADD CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`);
 --INSERT INTO chattingTime VALUES
 --(1,'22:00:00'),
 --(2,'22:30:00'),

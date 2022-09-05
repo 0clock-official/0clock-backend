@@ -4,3 +4,11 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  messages:
+    encoding: UTF-8
+  http:
+    encoding:
+      charset: UTF-8
+server:
+  tomcat:
+    uri-encoding: UTF-8
