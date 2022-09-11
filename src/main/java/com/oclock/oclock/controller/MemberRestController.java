@@ -5,6 +5,7 @@ import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.security.Jwt;
 import com.oclock.oclock.security.JwtAuthentication;
+import com.oclock.oclock.service.EmailService;
 import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +31,8 @@ public class MemberRestController {
     private final Jwt jwt;
 
     private final MemberService memberService;
+
+    private final EmailService emailService;
 
     @GetMapping(path  = "getMembers")
     public ResponseEntity<ResponseDto> getMembers() {
@@ -119,6 +122,17 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PostMapping(path = "sendEmail")
+    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) {
+        emailService.sendSimpleMessage(request.get("to"), request.get("subject"), request.get("text"));
+        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+                .code("200")
+                .response("이메일 전송 성공")
+                .data(true)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping(path = "members")
     @ApiOperation(value = "자기 정보 불러오기")
     public ApiResult<Member> me(@AuthenticationPrincipal JwtAuthentication authentication) {
@@ -130,6 +144,9 @@ public class MemberRestController {
     public ApiResult<Boolean> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
         return OK(memberService.deleteAccount(authentication.id));
     }
+
+
+
 
 //    @PostMapping(path = "join")
 //    @ApiOperation(value = "회원가입")

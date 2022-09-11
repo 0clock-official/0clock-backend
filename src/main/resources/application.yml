@@ -35,3 +35,12 @@ jwt:
     issuer: oclock
     clientSecret: Rel3Bjce2MajBo09qgkNgYaTuzvJe8iwnBFhsDS5
     expirySeconds: 0
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: okeullag@gmail.com
+  password: hnnprmaxqweakwvg
+  properties:
+    mail:
+      smtp: auth=true
+      starttls: enable=true

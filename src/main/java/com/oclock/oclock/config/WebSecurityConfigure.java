@@ -24,7 +24,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter{
     private final Jwt jwt;
 
