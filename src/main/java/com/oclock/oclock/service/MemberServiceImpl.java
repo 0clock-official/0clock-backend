@@ -1,15 +1,14 @@
 package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -43,6 +42,12 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public Member findByEmail(Email email) {
+        checkArgument(email != null, "email must be provided.");
+        return memberRepository.selectMemberByEmail(email.toString());
+    }
+
+    @Override
     public void joinWithToken(String token, String password) {
 
     }
@@ -60,7 +65,11 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member login(Email email, String password) {
-        return memberRepository.selectMemberByEmailAndPassword(email.toString(), password);
+        checkArgument(password != null, "password must be provided.");
+
+        Member member = findByEmail(email);
+        member.login(passwordEncoder, password);
+        return member;
     }
 
     @Override

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@Configuration
+@ConfigurationProperties(prefix = "jwt.token")
 public class JwtTokenConfigure {
 
     private String header;

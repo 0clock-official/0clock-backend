@@ -5,6 +5,7 @@ import com.oclock.oclock.security.Jwt;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigInteger;
 
@@ -22,6 +23,9 @@ public class Member {
     private int major;
     private String nickName;
     private int joinStep;
+
+    public Member(Member member) {
+    }
 
     public static class MemberSex{
         public static final int MALE = 1;
@@ -52,6 +56,11 @@ public class Member {
         this.major = major;
         this.nickName = nickName;
         this.joinStep = joinStep;
+    }
+
+    public void login(PasswordEncoder passwordEncoder, String credentials) {
+        if (!passwordEncoder.matches(credentials, password))
+            throw new IllegalArgumentException("Bad credential");
     }
 
     public String newApiToken(Jwt jwt, String[] roles) {

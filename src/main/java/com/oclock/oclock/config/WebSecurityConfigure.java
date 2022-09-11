@@ -24,7 +24,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter{
     private final Jwt jwt;
 
@@ -37,6 +37,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter{
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/swagger-resources", "/webjars/**", "/static/**", "/templates/**", "/h2/**");
+
     }
 
     @Bean
@@ -52,7 +53,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter{
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new PasswordEncoderTest();
     }
 
 
@@ -81,6 +82,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter{
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/**").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .formLogin()

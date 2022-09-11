@@ -17,6 +17,8 @@ public interface MemberService {
     boolean checkEmail(Email email);
 
     Member findById(Long id);
+
+    Member findByEmail(Email email);
     void joinWithToken(String token, String password);
     File joinStep4(File image);
 
