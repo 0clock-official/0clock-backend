@@ -15,7 +15,7 @@ public class JwtAuthentication {
     public final String name;
 
     JwtAuthentication(Long id, Email email, String name) {
-        checkArgument(id != null, "email must be provided.");
+        checkArgument(id != null, "id must be provided.");
         checkArgument(email != null, "email must be provided.");
         checkArgument(name != null, "member must be provided.");
         this.id = id;

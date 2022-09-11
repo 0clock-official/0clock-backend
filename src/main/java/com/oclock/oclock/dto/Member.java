@@ -25,6 +25,15 @@ public class Member {
     private int joinStep;
 
     public Member(Member member) {
+        this.id = member.getId();
+        this.email = member.getEmail();
+        this.password = member.getPassword();
+        this.chattingRoomId = member.getChattingRoomId();
+        this.memberSex = member.getMemberSex();
+        this.matchingSex = member.getMatchingSex();
+        this.major = member.getMajor();
+        this.nickName = member.getNickName();
+        this.joinStep = member.getJoinStep();
     }
 
     public static class MemberSex{

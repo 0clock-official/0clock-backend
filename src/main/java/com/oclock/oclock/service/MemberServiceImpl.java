@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -44,7 +45,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member findByEmail(Email email) {
         checkArgument(email != null, "email must be provided.");
-        return memberRepository.selectMemberByEmail(email.toString());
+        return memberRepository.findByEmail(email);
     }
 
     @Override
@@ -70,6 +71,12 @@ public class MemberServiceImpl implements MemberService {
         Member member = findByEmail(email);
         member.login(passwordEncoder, password);
         return member;
+    }
+
+    @Override
+    public List<Member> getMembers() {
+        List<Member> members = memberRepository.getMembers();
+        return members;
     }
 
     @Override

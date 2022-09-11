@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.oclock.oclock.dto.ApiResult.OK;
 
@@ -28,6 +30,16 @@ public class MemberRestController {
     private final Jwt jwt;
 
     private final MemberService memberService;
+
+    @GetMapping(path  = "getMembers")
+    public ResponseEntity<ResponseDto> getMembers() {
+        List<Member> members = memberService.getMembers();
+        ResponseDto<String> response = ResponseDto.<String>builder()
+                .code("200")
+                .response("멤버 불러오기")
+                .data(members.stream().map(Object::toString).collect(Collectors.joining(","))).build();
+        return ResponseEntity.ok().body(response);
+    }
 
     @GetMapping(path = "join/{email}/state")
     @ApiOperation(value = "회원가입 단계 확인")

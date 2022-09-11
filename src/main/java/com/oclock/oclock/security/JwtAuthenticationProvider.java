@@ -6,12 +6,14 @@ import com.oclock.oclock.model.Email;
 import com.oclock.oclock.model.Role;
 import com.oclock.oclock.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider implements AuthenticationProvider {
     private final Jwt jwt;

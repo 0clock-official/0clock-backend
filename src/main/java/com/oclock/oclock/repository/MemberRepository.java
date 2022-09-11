@@ -2,6 +2,7 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Major;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.model.Email;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +19,8 @@ public interface MemberRepository {
     Member selectMemberByEmailAndPassword(String email, String password);
     List<Member> selectRandomMembers(Member requestMember);
     List<Long> selectRandomMemberIds(Member requestMember);
+
+    Member findByEmail(Email email);
+
+    List<Member> getMembers();
 }

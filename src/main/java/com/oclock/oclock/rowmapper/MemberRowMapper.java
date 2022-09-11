@@ -18,9 +18,7 @@ public class MemberRowMapper<T extends Member> implements RowMapper<T> {
                 .chattingTime(rs.getInt("chattingTime"))
                 .nickName(rs.getString("nickName"))
                 .email(new Email(rs.getString("email")))
-                .chattingRoomId(rs.getBigDecimal("chattingRoomId").toBigInteger())
-                .matchingSex(rs.getInt("matchingSex"))
-                .joinStep(rs.getInt("joinStep"));
+                .matchingSex(rs.getInt("matchingSex"));
         return (T) builder.build();
     }
 }

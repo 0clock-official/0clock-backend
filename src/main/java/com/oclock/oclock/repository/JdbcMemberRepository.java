@@ -4,6 +4,8 @@ import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.error.ErrorCode;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
+import com.oclock.oclock.model.Email;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +23,10 @@ public class JdbcMemberRepository implements MemberRepository{
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    //TODO null 값 처리 해주어야함
     @Override
     public int checkJoinStep(String email) {
         return selectMemberByEmail(email).getJoinStep();
     }
-    //TODO 선생님 이게 뭐에요
     @Override
     public void addMemberEmail(String email) {
         String sql = "insert into emailCode values(?,?)";
@@ -115,6 +115,31 @@ public class JdbcMemberRepository implements MemberRepository{
             return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("id"), requestMember.getChattingTime(), requestMember.getMemberSex(), requestMember.getMajor());
         }
         return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getLong("id"),requestMember.getChattingTime(),requestMember.getMatchingSex(),requestMember.getMemberSex(),requestMember.getMajor());
+    }
+
+    @Override
+    public Member findByEmail(Email email) {
+        String sql = "SELECT * FROM member WHERE email=?";
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapper(), email.getAddress());
+            log.info("The size of members is " + Integer.toString(members.size()));
+        } catch (Exception e) {
+            final String msg = "해당 이메일의 유저가 없습니다. [email:" + email.getAddress() + "]";
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
+    }
+
+    @Override
+    public List<Member> getMembers() {
+        String sql = "SELECT * FROM member";
+        List<Member> members;
+
+        members = jdbcTemplate.query(sql, new MemberRowMapper<>());
+
+        return members;
     }
 }
 

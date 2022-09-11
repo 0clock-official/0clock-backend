@@ -7,6 +7,7 @@ import com.oclock.oclock.security.AuthenticationResult;
 import com.oclock.oclock.security.JwtAuthenticationToken;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.oclock.oclock.dto.ApiResult.OK;
 
+
+@Slf4j
 @RestController
 @RequestMapping("api/auth")
 @Api(tags = "인증 APIs")
@@ -34,6 +37,7 @@ public class AuthenticationRestController {
     public ApiResult<AuthenticationResultDto> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(authRequest.getPrincipal(), authRequest.getCredentials());
+            log.info(authRequest.toString());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return OK(
