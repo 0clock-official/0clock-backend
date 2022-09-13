@@ -2,6 +2,7 @@ package com.oclock.oclock.controller;
 
 import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.security.Jwt;
 import com.oclock.oclock.security.JwtAuthentication;
@@ -44,85 +45,8 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping(path = "join/{email}/state")
-    @ApiOperation(value = "회원가입 단계 확인")
-    public ResponseEntity<ResponseDto> checkJoinStep(@PathVariable String email) {
-        int step = memberService.checkJoinStep(new Email(email));
-        ResponseDto<Integer> response = ResponseDto.<Integer>builder()
-                .code("200")
-                .response("회원가입 단계 확인")
-                .data(step)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PostMapping(path = "join/step1")
-    @ApiOperation(value = "회원가입절차 시작 - 이메일 인증")
-    public ResponseEntity<ResponseDto> checkEmail(@RequestBody @ApiParam(value = "example: {\"email\": \"test@test.com\"}") Map<String, String> request
-    ) {
-        Email email = new Email(request.get("email"));
-        ResponseDto<Email> response = ResponseDto.<Email>builder()
-                .code("200")
-                .response("이메일 인증")
-                .data(email)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PostMapping(path = "join/step2")
-    @ApiOperation(value = "회원가입 - 인증코드 인증")
-    public ResponseEntity<ResponseDto> checkValidation(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody @ApiParam(value = "example:{ \"email\":\"test@test.com\",\n" + "\"code\":인증번호(숫자)\n" +
-            "}") Map<String, String> request) {
-        Email email = new Email(request.get("email"));
-        String code = request.get("code");
-        ResponseDto<Email> response = ResponseDto.<Email>builder()
-                .code("200")
-                .response("인증 코드 인증")
-                .data(email)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PostMapping(path = "join/step3")
-    @ApiOperation(value = "회원가입 - 비밀번호 입력")
-    public ResponseEntity<ResponseDto> savePassword(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody @ApiParam(value = "example:{\n" +
-            "\"token\":\"토큰(POST /members/join/step2 로 받은 토큰)\",\n" +
-            "\"password\":\"비밀번호\"\n" +
-            "}") Map<String, String> request) {
-        String token = request.get("token");
-        String password = request.get("password");
-        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
-                .code("200")
-                .response("비밀번호 입력")
-                .data(true)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PostMapping(path = "join/step4")
-    @ApiOperation(value = "학생증 인증을 위한 학생증 전송")
-    public ResponseEntity<ResponseDto> saveIdCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody File file) {
-
-        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
-                .code("200")
-                .response("학생증 등록")
-                .data(true)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PostMapping(path = "join/step5")
-    @ApiOperation(value = "닉네임, 전공, 채팅시간, 성별 입력")
-    public ResponseEntity<ResponseDto> savePassword(@AuthenticationPrincipal JwtAuthentication authentication) {
-        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
-                .code("200")
-                .response("개인 정보 변경")
-                .data(true)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PostMapping(path = "sendEmail")
+    //TODO 랜덤 번호 서비스단에서 처리 리포에서 DB로 저장
+    @PostMapping(path = "email")
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) {
         emailService.sendSimpleMessage(request.get("to"), request.get("subject"), request.get("text"));
         ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
@@ -133,13 +57,61 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping(path = "members")
+
+    
+    //TODO fcm 재발급 구현
+
+    @PutMapping(path = "fcm")
+    public ResponseEntity<?> refreshFcm() {
+        
+    }
+
+    //TODO 업로드 구현
+    @PostMapping(path = "join/studentCard")
+    public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
+        memberService.updateEmailStudnetCard(body);
+    }
+    
+    //TODO login 여기에 구현
+
+
+    @PostMapping(path = "{email}/passwordReset")
+    public ResponseEntity<?> resetPassword(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
+        Member member = memberService.findByEmail(new Email(body.get("email")));
+        member.setPassword(body.get("password"));
+        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+                .code("200")
+                .response("이메일 전송 성공")
+                .data(true)
+                .build();
+        return ResponseEntity.ok().body(response);
+
+    }
+
+    @PutMapping
+    public ResponseEntity<?> editMyself(@RequestBody Map<String, String> body) {
+        memberService.editMyself(body);
+    }
+
+    @GetMapping(path = "self")
     @ApiOperation(value = "자기 정보 불러오기")
     public ApiResult<Member> me(@AuthenticationPrincipal JwtAuthentication authentication) {
         return OK(memberService.findById(authentication.id));
     }
 
-    @DeleteMapping(path = "members")
+    @GetMapping(path = "other")
+    @ApiOperation(value = "채팅하고있는 상대방 정보 조회")
+    public ResponseEntity<?> other(@AuthenticationPrincipal JwtAuthentication authentication) {
+        Member other = memberService.other(authentication.id);
+        ResponseDto<Member> response = ResponseDto.<Member>builder()
+                .code("200")
+                .response("상대방 정보 불러오기 성공")
+                .data(other)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping
     @ApiOperation(value = "회원탈퇴")
     public ApiResult<Boolean> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
         return OK(memberService.deleteAccount(authentication.id));

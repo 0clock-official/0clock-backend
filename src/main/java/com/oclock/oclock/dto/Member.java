@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.math.BigInteger;
 
 @Getter
+@Setter
 @Builder
 public class Member {
     private long id;
