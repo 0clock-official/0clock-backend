@@ -2,32 +2,37 @@ package com.oclock.oclock.controller;
 
 import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
-import com.oclock.oclock.exception.NotFoundException;
+import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
-import com.oclock.oclock.security.Jwt;
-import com.oclock.oclock.security.JwtAuthentication;
+import com.oclock.oclock.security.*;
 import com.oclock.oclock.service.EmailService;
 import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.oclock.oclock.dto.ApiResult.OK;
 
+@Slf4j
 @RestController
 @RequestMapping("members")
 @Api(tags = "사용자 APIs")
 @AllArgsConstructor
 public class MemberRestController {
+
+    private final AuthenticationManager authenticationManager;
 
     private final Jwt jwt;
 
@@ -46,15 +51,22 @@ public class MemberRestController {
     }
 
     //TODO 랜덤 번호 서비스단에서 처리 리포에서 DB로 저장
-    @PostMapping(path = "email")
+    @PostMapping(path = "email/verification")
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) {
         emailService.sendSimpleMessage(request.get("to"), request.get("subject"), request.get("text"));
-        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+
+        ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
-                .response("이메일 전송 성공")
-                .data(true)
+                .response("회원가입이 정상적으로 되었습니다.")
+                //TODO 토큰 바디에 박기
+                .data("accessToken")
                 .build();
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping(path = "join")
+    public ResponseEntity<?> join(@RequestBody Map<String, Object> request) {
+
     }
 
 
@@ -70,19 +82,40 @@ public class MemberRestController {
     @PostMapping(path = "join/studentCard")
     public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
         memberService.updateEmailStudnetCard(body);
+        ResponseDto<?> response = ResponseDto.<String >builder()
+                .code("200")
+                .response("학생증 인증 성공")
+                //TODO 토큰 바디에 박기
+                .data("")
+                .build();
+        return ResponseEntity.ok().body(response);
     }
     
     //TODO login 여기에 구현
-
+    @PostMapping(path = "login")
+    @ApiOperation(value = "사용자 로그인 (API 토큰 필요없음)")
+    public ApiResult<AuthenticationResultDto> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
+        try {
+            JwtAuthenticationToken authToken = new JwtAuthenticationToken(authRequest.getPrincipal(), authRequest.getCredentials());
+            log.info(authRequest.toString());
+            Authentication authentication = authenticationManager.authenticate(authToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return OK(
+                    new AuthenticationResultDto((AuthenticationResult) authentication.getDetails())
+            );
+        } catch (AuthenticationException e) {
+            throw new UnauthorizedException(e.getMessage());
+        }
+    }
 
     @PostMapping(path = "{email}/passwordReset")
     public ResponseEntity<?> resetPassword(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
         Member member = memberService.findByEmail(new Email(body.get("email")));
         member.setPassword(body.get("password"));
-        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+        ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
                 .response("이메일 전송 성공")
-                .data(true)
+                .data("")
                 .build();
         return ResponseEntity.ok().body(response);
 
