@@ -65,6 +65,7 @@ CREATE TABLE `member` (
   `major` int(11) unsigned NOT NULL,
   `nickName` varchar(64) NOT NULL DEFAULT '',
   `joinStep` tinyint(4) NOT NULL,
+  `fcmToken` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `major` (`major`),
