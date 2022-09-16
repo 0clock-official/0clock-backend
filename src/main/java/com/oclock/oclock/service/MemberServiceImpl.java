@@ -1,6 +1,7 @@
 package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.repository.MemberRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -21,8 +23,28 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     @Override
-    public Member join(Email email, String password) {
-        return null;
+    public Member join(MemberDto memberDto) {
+        return memberRepository.join(memberDto);
+    }
+
+    @Override
+    public void editMyself(Map<String, String> body) {
+        if (body.get("nickname") != null && body.get("nickname") != "") {
+            memberRepository.updateNickname(body.get("nickname"));
+        }
+        if (body.get("chattingTime") != null && body.get("chattingTime") != "") {
+            memberRepository.updateChattingTime(body.get("chattingTime"));
+        }
+    }
+
+    @Override
+    public void updateFcm(Map<String, String> body) {
+
+    }
+
+    @Override
+    public void updateEmailStudentCard(Map<String, String> body) {
+
     }
 
     @Override
@@ -77,6 +99,11 @@ public class MemberServiceImpl implements MemberService {
     public List<Member> getMembers() {
         List<Member> members = memberRepository.getMembers();
         return members;
+    }
+
+    @Override
+    public Member other(Long id) {
+        return null;
     }
 
     @Override

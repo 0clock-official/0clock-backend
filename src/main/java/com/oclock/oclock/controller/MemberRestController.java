@@ -2,6 +2,7 @@ package com.oclock.oclock.controller;
 
 import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.security.*;
@@ -57,7 +58,7 @@ public class MemberRestController {
 
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
-                .response("회원가입이 정상적으로 되었습니다.")
+                .response("")
                 //TODO 토큰 바디에 박기
                 .data("accessToken")
                 .build();
@@ -65,8 +66,15 @@ public class MemberRestController {
     }
 
     @PostMapping(path = "join")
-    public ResponseEntity<?> join(@RequestBody Map<String, Object> request) {
-
+    public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
+        memberService.join(memberDto);
+        ResponseDto<?> response = ResponseDto.<String>builder()
+                .code("200")
+                .response("회원가입이 정상적으로 되었습니다.")
+                //TODO 토큰 바디에 박기
+                .data("accessToken")
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 
 
@@ -74,14 +82,14 @@ public class MemberRestController {
     //TODO fcm 재발급 구현
 
     @PutMapping(path = "fcm")
-    public ResponseEntity<?> refreshFcm() {
-        
+    public void refreshFcm(@RequestBody Map<String, String> body) {
+        memberService.updateFcm(body);
     }
 
     //TODO 업로드 구현
     @PostMapping(path = "join/studentCard")
     public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
-        memberService.updateEmailStudnetCard(body);
+        memberService.updateEmailStudentCard(body);
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
                 .response("학생증 인증 성공")
@@ -124,6 +132,7 @@ public class MemberRestController {
     @PutMapping
     public ResponseEntity<?> editMyself(@RequestBody Map<String, String> body) {
         memberService.editMyself(body);
+        return ResponseEntity.ok().body("");
     }
 
     @GetMapping(path = "self")

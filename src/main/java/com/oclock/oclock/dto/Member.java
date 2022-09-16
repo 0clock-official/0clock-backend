@@ -25,6 +25,8 @@ public class Member {
     private String nickName;
     private int joinStep;
 
+    private String fcmToken;
+
     public Member(Member member) {
         this.id = member.getId();
         this.email = member.getEmail();
@@ -35,6 +37,7 @@ public class Member {
         this.major = member.getMajor();
         this.nickName = member.getNickName();
         this.joinStep = member.getJoinStep();
+        this.fcmToken = member.getFcmToken();
     }
 
     public static class MemberSex{
@@ -55,7 +58,7 @@ public class Member {
         public static final int END = 6;
     }
 
-    public Member(long id, Email email, String password, BigInteger chattingRoomId, int chattingTime, int memberSex, int matchingSex, int major, String nickName, int joinStep) {
+    public Member(long id, Email email, String password, BigInteger chattingRoomId, int chattingTime, int memberSex, int matchingSex, int major, String nickName, int joinStep, String fcmToken) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -66,6 +69,7 @@ public class Member {
         this.major = major;
         this.nickName = nickName;
         this.joinStep = joinStep;
+        this.fcmToken = fcmToken;
     }
 
     public void login(PasswordEncoder passwordEncoder, String credentials) {

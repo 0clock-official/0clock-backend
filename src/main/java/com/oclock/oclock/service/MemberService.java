@@ -1,17 +1,24 @@
 package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.model.Email;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public interface MemberService {
     // 각 가입 단계
-    Member join(Email email, String password);
+    Member join(MemberDto memberDto);
+
+    void editMyself(Map<String, String> body);
+
+    void updateFcm(Map<String, String> body);
+    void updateEmailStudentCard(Map<String, String> body);
 
     int checkJoinStep(Email email);
 
@@ -29,4 +36,6 @@ public interface MemberService {
     void resetPassword(String email); // 비밀번호 리셋 요청
 
     List<Member> getMembers();
+
+    Member other(Long id);
 }

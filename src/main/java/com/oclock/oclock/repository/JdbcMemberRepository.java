@@ -1,6 +1,7 @@
 package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.error.ErrorCode;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
@@ -22,6 +23,23 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public Member join(MemberDto memberDto) {
+        String sql = "insert into member (email, password, nickname, major, chatting_time, sex, fcmToken) values(?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getSex(), memberDto.getFcmToken());
+        return selectMemberByEmail(memberDto.getEmail());
+    }
+
+    @Override
+    public void updateNickname(String nickname) {
+
+    }
+
+    @Override
+    public void updateChattingTime(String chattingTime) {
+
+    }
 
     @Override
     public int checkJoinStep(String email) {
