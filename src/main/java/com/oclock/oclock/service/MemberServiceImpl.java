@@ -4,12 +4,15 @@ import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
+import com.oclock.oclock.model.Verification;
 import com.oclock.oclock.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +42,8 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void updateFcm(Map<String, String> body) {
-
+        Email email = new Email(body.get("email"));
+        memberRepository.updateFcm(email.getAddress(), body.get("fcmToken"));
     }
 
     @Override
@@ -48,13 +52,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public int checkJoinStep(Email email) {
-        return memberRepository.checkJoinStep(email.toString());
-    }
-
-    @Override
     public boolean checkEmail(Email email) {
-        return false;
+        return memberRepository.selectMemberByEmail(email.getAddress()) == null ? true : false;
     }
 
     @Override
@@ -103,7 +102,32 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member other(Long id) {
-        return null;
+        return memberRepository.selectMemberById(id);
+    }
+
+    @Override
+    public boolean checkVerification(String email, String verification) {
+        List<Verification> verifications = memberRepository.getVerification(email);
+        if (verifications.size() != 1) return false;
+        return verifications.get(0).getVerification().equals(verification);
+    }
+
+    @Override
+    public void renewVerification(String email, String verification) {
+        List<Verification> verifications = memberRepository.getVerification(email);
+        if (!verification.isEmpty()) {
+            memberRepository.updateVerification(email, verification);
+            return;
+        }
+        memberRepository.insertVerification(email, verification);
+
+    }
+
+    @Override
+    public String createRandomCode() throws NoSuchAlgorithmException {
+        SecureRandom secureRandom = SecureRandom.getInstance("NativePRNG");
+        int randomInt = secureRandom.nextInt(100000);
+        return Integer.toString(randomInt);
     }
 
     @Override

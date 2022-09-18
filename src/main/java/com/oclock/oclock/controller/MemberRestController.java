@@ -20,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import javax.mail.MessagingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,40 +43,66 @@ public class MemberRestController {
 
     private final EmailService emailService;
 
+    //Test용 Get멤버. Member의 객체 정보만 반환해야함
+
     @GetMapping(path  = "getMembers")
     public ResponseEntity<ResponseDto> getMembers() {
         List<Member> members = memberService.getMembers();
         ResponseDto<String> response = ResponseDto.<String>builder()
-                .code("200")
+                .code("200 OK")
                 .response("멤버 불러오기")
                 .data(members.stream().map(Object::toString).collect(Collectors.joining(","))).build();
         return ResponseEntity.ok().body(response);
     }
 
     //TODO 랜덤 번호 서비스단에서 처리 리포에서 DB로 저장
-    @PostMapping(path = "email/verification")
-    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) {
-        emailService.sendSimpleMessage(request.get("to"), request.get("subject"), request.get("text"));
-
+    @PostMapping(path = "email")
+    public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException, NoSuchAlgorithmException {
+        String email = request.get("email");
+        String verification = memberService.createRandomCode();
+        memberService.renewVerification(email, verification);
+        emailService.sendVerificationHtmlMessage(new Email(email), verification);
         ResponseDto<?> response = ResponseDto.<String>builder()
-                .code("200")
+                .code("200 OK")
                 .response("")
-                //TODO 토큰 바디에 박기
-                .data("accessToken")
+                .data("")
                 .build();
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "join")
-    public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
-        memberService.join(memberDto);
+    @PostMapping(path = "email/verification")
+    public ResponseEntity<?> checkVerification(@RequestBody Map<String, String> request) throws MessagingException {
+        String email = request.get("email");
+        if (memberService.checkVerification(email, request.get("code"))) {
+            ResponseDto<?> response = ResponseDto.<String>builder()
+                    .code("200 OK")
+                    .response("")
+                    .data("")
+                    .build();
+            return ResponseEntity.ok().body(response);
+        }
         ResponseDto<?> response = ResponseDto.<String>builder()
-                .code("200")
-                .response("회원가입이 정상적으로 되었습니다.")
-                //TODO 토큰 바디에 박기
-                .data("accessToken")
+                .code("401 Unauthorized")
+                .response("wrong code")
+                .data("")
                 .build();
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.status(401).body(response);
+    }
+
+
+    @PostMapping(path = "join")
+    public ApiResult<AuthenticationResultDto> join(@RequestBody MemberDto memberDto) {
+        memberService.join(memberDto);
+        try {
+            JwtAuthenticationToken authToken = new JwtAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
+            Authentication authentication = authenticationManager.authenticate(authToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return OK(
+                    new AuthenticationResultDto((AuthenticationResult) authentication.getDetails())
+            );
+        } catch (AuthenticationException e) {
+            throw new UnauthorizedException(e.getMessage());
+        }
     }
 
 
@@ -93,7 +121,6 @@ public class MemberRestController {
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
                 .response("학생증 인증 성공")
-                //TODO 토큰 바디에 박기
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
@@ -104,8 +131,7 @@ public class MemberRestController {
     @ApiOperation(value = "사용자 로그인 (API 토큰 필요없음)")
     public ApiResult<AuthenticationResultDto> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
         try {
-            JwtAuthenticationToken authToken = new JwtAuthenticationToken(authRequest.getPrincipal(), authRequest.getCredentials());
-            log.info(authRequest.toString());
+            JwtAuthenticationToken authToken = new JwtAuthenticationToken(authRequest.getEmail(), authRequest.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return OK(
@@ -117,8 +143,8 @@ public class MemberRestController {
     }
 
     @PostMapping(path = "{email}/passwordReset")
-    public ResponseEntity<?> resetPassword(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
-        Member member = memberService.findByEmail(new Email(body.get("email")));
+    public ResponseEntity<?> resetPassword(@PathVariable("email") String email, @RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
+        Member member = memberService.findByEmail(new Email(email));
         member.setPassword(body.get("password"));
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
@@ -126,7 +152,6 @@ public class MemberRestController {
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
-
     }
 
     @PutMapping

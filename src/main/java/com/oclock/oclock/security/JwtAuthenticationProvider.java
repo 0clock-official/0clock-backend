@@ -38,7 +38,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private Authentication processMemberAuthentication(AuthenticationRequest request) {
         try {
-            Member member = memberService.login(new Email(request.getPrincipal()), request.getCredentials());
+            Member member = memberService.login(new Email(request.getEmail()), request.getPassword());
             JwtAuthenticationToken authenticated =
                     new JwtAuthenticationToken(new JwtAuthentication(member.getId(), member.getEmail(), member.getNickName()), null, createAuthorityList(Role.USER.value()));
             String apiToken = member.newApiToken(jwt, new String[]{Role.USER.value()});

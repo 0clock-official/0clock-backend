@@ -4,6 +4,7 @@ import com.oclock.oclock.dto.Major;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.model.Email;
+import com.oclock.oclock.model.Verification;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,13 @@ public interface MemberRepository {
     List<Long> selectRandomMemberIds(Member requestMember);
 
     Member findByEmail(Email email);
-
     List<Member> getMembers();
+
+    List<Verification> getVerification(String email);
+
+    void insertVerification(String email, String verification);
+
+    void updateVerification(String email, String verification);
+
+    void updateFcm(String email, String fcmToken);
 }

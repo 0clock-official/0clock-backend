@@ -6,8 +6,10 @@ import com.oclock.oclock.error.ErrorCode;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.model.Email;
+import com.oclock.oclock.model.Verification;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
+import com.oclock.oclock.rowmapper.MemberVerfiRowMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -63,13 +65,13 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public void addMemberPassword(Member member) {
-        String sql = "update set password = ? where email = ?";
+        String sql = "update member set password = ? where email = ?";
         jdbcTemplate.update(sql,member.getPassword(),member.getEmail());
     }
 
     @Override
     public void addMemberPrivacy(Member member) {
-        String sql = "update set memberSex = ?, matchingSex = ?, major = ?, mickName = ?, chattingTime = ? where id = ?";
+        String sql = "update member set memberSex = ?, matchingSex = ?, major = ?, mickName = ?, chattingTime = ? where id = ?";
         jdbcTemplate.update(sql,member.getMemberSex(),member.getMatchingSex(),member.getMajor(),member.getNickName(),member.getChattingTime());
     }
 
@@ -158,6 +160,32 @@ public class JdbcMemberRepository implements MemberRepository{
         members = jdbcTemplate.query(sql, new MemberRowMapper<>());
 
         return members;
+    }
+
+    @Override
+    public List<Verification> getVerification(String email) {
+        String sql = "SELECT * FROM memberVerification WHERE memberEmail = ?";
+        List<Verification> verifications;
+        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>());
+        return verifications;
+    }
+
+    @Override
+    public void insertVerification(String email, String verification) {
+        String sql = "INSERT memberVerification (email, verification)";
+        jdbcTemplate.update(sql, email, verification);
+    }
+
+    @Override
+    public void updateVerification(String email, String verification) {
+        String sql = "UPDATE memberVerification set verification = ? where memberEmail = ?";
+        jdbcTemplate.update(sql, verification, email);
+    }
+
+    @Override
+    public void updateFcm(String email, String fcmToken) {
+        String sql = "UPDATE memberVerification set fcmToken = ? where memberEmail = ?";
+        jdbcTemplate.update(sql, fcmToken, email);
     }
 }
 

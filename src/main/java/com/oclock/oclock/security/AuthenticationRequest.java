@@ -1,27 +1,24 @@
 package com.oclock.oclock.security;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthenticationRequest {
-    private String principal;
+    private String email;
 
-    private String credentials;
-
-    protected AuthenticationRequest() {}
-
-    public AuthenticationRequest(String principal, String credentials) {
-        this.principal = principal;
-        this.credentials = credentials;
-    }
+    private String password;
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("principal", principal)
-                .append("credentials", credentials)
+                .append("email", email)
+                .append("password", password)
                 .toString();
     }
 }

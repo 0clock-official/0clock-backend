@@ -6,6 +6,7 @@ drop TABLE if EXISTS major;
 drop TABLE if EXISTS matchingSex;
 drop TABLE if EXISTS member;
 drop TABLE if EXISTS memberSex;
+drop TABLE if EXISTS userVerification;
 
 CREATE TABLE `chattingLog` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -79,6 +80,13 @@ CREATE TABLE `member` (
   CONSTRAINT `member_ibfk_5` FOREIGN KEY (`matchingSex`) REFERENCES `matchingSex` (`id`),
   CONSTRAINT `member_ibfk_6` FOREIGN KEY (`chattingRoomId`) REFERENCES `chattingRoom` (`id`) ON DELETE SET NULL ON UPDATE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `memberVerification` (
+  `memberEmail` varchar(320),
+  `verification` varchar(30),
+  PRIMARY KEY (`memberEmail`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ALTER TABLE `memberVerification` ADD CONSTRAINT `memberVerification_ibfk_1` FOREIGN KEY (`memberEmail`) REFERENCES `member` (`email`);
+
 ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
 ALTER TABLE `member` ADD CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`);

@@ -6,6 +6,7 @@ import com.oclock.oclock.model.Email;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,8 +20,6 @@ public interface MemberService {
 
     void updateFcm(Map<String, String> body);
     void updateEmailStudentCard(Map<String, String> body);
-
-    int checkJoinStep(Email email);
 
     boolean checkEmail(Email email);
 
@@ -38,4 +37,10 @@ public interface MemberService {
     List<Member> getMembers();
 
     Member other(Long id);
+
+    boolean checkVerification(String email, String verification);
+
+    void renewVerification(String email, String verification);
+
+    String createRandomCode() throws NoSuchAlgorithmException;
 }
