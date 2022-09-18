@@ -1,6 +1,7 @@
 package com.oclock.oclock.rowmapper;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.model.Email;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -16,10 +17,8 @@ public class MemberRowMapper<T extends Member> implements RowMapper<T> {
                 .major(rs.getInt("major"))
                 .chattingTime(rs.getInt("chattingTime"))
                 .nickName(rs.getString("nickName"))
-                .email(rs.getString("email"))
-                .chattingRoomId(rs.getBigDecimal("chattingRoomId").toBigInteger())
-                .matchingSex(rs.getInt("matchingSex"))
-                .joinStep(rs.getInt("joinStep"));
+                .email(new Email(rs.getString("email")))
+                .matchingSex(rs.getInt("matchingSex"));
         return (T) builder.build();
     }
 }

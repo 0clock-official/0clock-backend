@@ -2,10 +2,20 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Major;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.MemberDto;
+import com.oclock.oclock.model.Email;
+import com.oclock.oclock.model.Verification;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository {
+
+    Member join(MemberDto memberDto);
+
+    void updateNickname(String nickname);
+    void updateChattingTime(String chattingTime);
+    int checkJoinStep(String email);
     void addMemberEmail(String email);
     void compareMemberEmailCode(String email, String code);
     void addMemberPassword(Member member);
@@ -15,4 +25,15 @@ public interface MemberRepository {
     Member selectMemberByEmailAndPassword(String email, String password);
     List<Member> selectRandomMembers(Member requestMember);
     List<Long> selectRandomMemberIds(Member requestMember);
+
+    Member findByEmail(Email email);
+    List<Member> getMembers();
+
+    List<Verification> getVerification(String email);
+
+    void insertVerification(String email, String verification);
+
+    void updateVerification(String email, String verification);
+
+    void updateFcm(String email, String fcmToken);
 }

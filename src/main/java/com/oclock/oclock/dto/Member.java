@@ -1,16 +1,20 @@
 package com.oclock.oclock.dto;
 
+import com.oclock.oclock.model.Email;
+import com.oclock.oclock.security.Jwt;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigInteger;
 
 @Getter
+@Setter
 @Builder
 public class Member {
     private long id;
-    private String email;
+    private Email email;
     private String password;
     @Setter
     private BigInteger chattingRoomId;
@@ -20,6 +24,21 @@ public class Member {
     private int major;
     private String nickName;
     private int joinStep;
+
+    private String fcmToken;
+
+    public Member(Member member) {
+        this.id = member.getId();
+        this.email = member.getEmail();
+        this.password = member.getPassword();
+        this.chattingRoomId = member.getChattingRoomId();
+        this.memberSex = member.getMemberSex();
+        this.matchingSex = member.getMatchingSex();
+        this.major = member.getMajor();
+        this.nickName = member.getNickName();
+        this.joinStep = member.getJoinStep();
+        this.fcmToken = member.getFcmToken();
+    }
 
     public static class MemberSex{
         public static final int MALE = 1;
@@ -37,5 +56,29 @@ public class Member {
         public static final int SEND_STUDENT_CARD = 4;
         public static final int SETTING_PRIVACY = 5;
         public static final int END = 6;
+    }
+
+    public Member(long id, Email email, String password, BigInteger chattingRoomId, int chattingTime, int memberSex, int matchingSex, int major, String nickName, int joinStep, String fcmToken) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.chattingRoomId = chattingRoomId;
+        this.chattingTime = chattingTime;
+        this.memberSex = memberSex;
+        this.matchingSex = matchingSex;
+        this.major = major;
+        this.nickName = nickName;
+        this.joinStep = joinStep;
+        this.fcmToken = fcmToken;
+    }
+
+    public void login(PasswordEncoder passwordEncoder, String credentials) {
+        if (!passwordEncoder.matches(credentials, password))
+            throw new IllegalArgumentException("Bad credential");
+    }
+
+    public String newApiToken(Jwt jwt, String[] roles) {
+        Jwt.Claims claims = Jwt.Claims.of(id, nickName, email, roles);
+        return jwt.newToken(claims);
     }
 }

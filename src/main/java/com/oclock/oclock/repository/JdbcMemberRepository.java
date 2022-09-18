@@ -1,20 +1,52 @@
 package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.MemberDto;
+import com.oclock.oclock.error.ErrorCode;
+import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
+import com.oclock.oclock.model.Email;
+import com.oclock.oclock.model.Verification;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
+import com.oclock.oclock.rowmapper.MemberVerfiRowMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+
+@Slf4j
 @Repository
 public class JdbcMemberRepository implements MemberRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Override
+    public Member join(MemberDto memberDto) {
+        String sql = "insert into member (email, password, nickname, major, chatting_time, sex, fcmToken) values(?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getSex(), memberDto.getFcmToken());
+        return selectMemberByEmail(memberDto.getEmail());
+    }
+
+    @Override
+    public void updateNickname(String nickname) {
+
+    }
+
+    @Override
+    public void updateChattingTime(String chattingTime) {
+
+    }
+
+    @Override
+    public int checkJoinStep(String email) {
+        return selectMemberByEmail(email).getJoinStep();
+    }
     @Override
     public void addMemberEmail(String email) {
         String sql = "insert into emailCode values(?,?)";
@@ -33,32 +65,56 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public void addMemberPassword(Member member) {
-        String sql = "update set password = ? where email = ?";
+        String sql = "update member set password = ? where email = ?";
         jdbcTemplate.update(sql,member.getPassword(),member.getEmail());
     }
 
     @Override
     public void addMemberPrivacy(Member member) {
-        String sql = "update set memberSex = ?, matchingSex = ?, major = ?, mickName = ?, chattingTime = ? where id = ?";
+        String sql = "update member set memberSex = ?, matchingSex = ?, major = ?, mickName = ?, chattingTime = ? where id = ?";
         jdbcTemplate.update(sql,member.getMemberSex(),member.getMatchingSex(),member.getMajor(),member.getNickName(),member.getChattingTime());
     }
 
     @Override
     public Member selectMemberById(long id) {
         String sql = "select * from member where id = ?";
-        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),id).get(0);
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),id);
+        } catch (Exception e) {
+            final String msg = "해당 id의 유저가 없습니다. [id:" + id + "]";
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
     }
 
     @Override
     public Member selectMemberByEmail(String email) {
         String sql = "select * from member where email = ?";
-        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email).get(0);
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+        } catch (Exception e) {
+            final String msg = "해당 이메일의 유저가 없습니다. [email:" + email + "]";
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
     }
 
     @Override
     public Member selectMemberByEmailAndPassword(String email, String password) {
         String sql = "select * from member where email = ? and password = ?";
-        return jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email).get(0);
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+        } catch (Exception e) {
+            final String msg = "해당 이메일과 비밀번호를 가진 유저가 없습니다. [email:" + email + "] [password:" + password;
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
     }
 
     @Override
@@ -79,6 +135,57 @@ public class JdbcMemberRepository implements MemberRepository{
             return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("id"), requestMember.getChattingTime(), requestMember.getMemberSex(), requestMember.getMajor());
         }
         return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getLong("id"),requestMember.getChattingTime(),requestMember.getMatchingSex(),requestMember.getMemberSex(),requestMember.getMajor());
+    }
+
+    @Override
+    public Member findByEmail(Email email) {
+        String sql = "SELECT * FROM member WHERE email=?";
+        List<Member> members;
+        try {
+            members = jdbcTemplate.query(sql, new MemberRowMapper(), email.getAddress());
+            log.info("The size of members is " + Integer.toString(members.size()));
+        } catch (Exception e) {
+            final String msg = "해당 이메일의 유저가 없습니다. [email:" + email.getAddress() + "]";
+            log.warn(msg);
+            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
+        }
+        return members.get(0);
+    }
+
+    @Override
+    public List<Member> getMembers() {
+        String sql = "SELECT * FROM member";
+        List<Member> members;
+
+        members = jdbcTemplate.query(sql, new MemberRowMapper<>());
+
+        return members;
+    }
+
+    @Override
+    public List<Verification> getVerification(String email) {
+        String sql = "SELECT * FROM memberVerification WHERE memberEmail = ?";
+        List<Verification> verifications;
+        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>());
+        return verifications;
+    }
+
+    @Override
+    public void insertVerification(String email, String verification) {
+        String sql = "INSERT memberVerification (email, verification)";
+        jdbcTemplate.update(sql, email, verification);
+    }
+
+    @Override
+    public void updateVerification(String email, String verification) {
+        String sql = "UPDATE memberVerification set verification = ? where memberEmail = ?";
+        jdbcTemplate.update(sql, verification, email);
+    }
+
+    @Override
+    public void updateFcm(String email, String fcmToken) {
+        String sql = "UPDATE memberVerification set fcmToken = ? where memberEmail = ?";
+        jdbcTemplate.update(sql, fcmToken, email);
     }
 }
 
