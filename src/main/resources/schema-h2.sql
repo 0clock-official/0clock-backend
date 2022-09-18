@@ -87,6 +87,12 @@ CREATE TABLE `memberVerification` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ALTER TABLE `memberVerification` ADD CONSTRAINT `memberVerification_ibfk_1` FOREIGN KEY (`memberEmail`) REFERENCES `member` (`email`);
 
+CREATE TABLE `refreshToken` (
+  `email` varchar(320),
+  `refreshToken` varchar(100),
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ALTER TABLE `refreshToken` ADD CONSTRAINT `refreshToken_ibfk_1` FOREIGN KEY (`email`) REFERENCES `member` (`email`);
 ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
 ALTER TABLE `member` ADD CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`);
