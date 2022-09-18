@@ -63,6 +63,7 @@ CREATE TABLE `member` (
   `major` int(11) unsigned NOT NULL,
   `nickName` varchar(64) NOT NULL DEFAULT '',
   `joinStep` tinyint(4) NOT NULL,
+  `fcmToken` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `major` (`major`),
@@ -75,7 +76,7 @@ CREATE TABLE `member` (
   CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`),
   CONSTRAINT `member_ibfk_5` FOREIGN KEY (`matchingSex`) REFERENCES `matchingSex` (`id`),
   CONSTRAINT `member_ibfk_6` FOREIGN KEY (`chattingRoomId`) REFERENCES `chattingRoom` (`id`) ON DELETE SET NULL ON UPDATE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `memberSex` (
   `id` tinyint(4) unsigned NOT NULL AUTO_INCREMENT,
   `value` varchar(32) NOT NULL DEFAULT '',

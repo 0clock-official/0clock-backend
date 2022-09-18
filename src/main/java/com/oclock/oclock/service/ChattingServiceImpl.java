@@ -8,6 +8,7 @@ import com.oclock.oclock.repository.ChattingRepository;
 import com.oclock.oclock.repository.JdbcChattingRepository;
 import com.oclock.oclock.repository.JdbcMemberRepository;
 import com.oclock.oclock.repository.MemberRepository;
+import com.oclock.oclock.secret.SecretTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,11 @@ public class ChattingServiceImpl implements ChattingService {
     private JdbcChattingRepository chattingRepository;
     @Autowired
     private JdbcMemberRepository memberRepository;
-
+    @Autowired
+    private SecretTool secretTool;
     @Override
     public void sendMessage(ChattingLog message) {
+        secretTool.encryptChatting(message);
         chattingRepository.addChatting(message);
     }
 
@@ -63,7 +66,9 @@ public class ChattingServiceImpl implements ChattingService {
     public List<ChattingLog> getMonthlyChattingLogs(Member requestMember, ChattingRoom chattingRoom, Timestamp startTime) {
         LocalDateTime endTime = startTime.toLocalDateTime();
         endTime = endTime.plusMonths(1);
-        return chattingRepository.selectChattingLogs(requestMember,chattingRoom,startTime,Timestamp.valueOf(endTime));
+        List<ChattingLog> result= chattingRepository.selectChattingLogs(requestMember,chattingRoom,startTime,Timestamp.valueOf(endTime));
+        secretTool.decryptChatting(result);
+        return result;
     }
 
     @Override
