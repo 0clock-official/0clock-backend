@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -31,7 +32,7 @@ public class ChattingServiceTest {
     ChattingServiceImpl chattingService;
     @Autowired
     JdbcMemberRepository memberRepository;
-    @Autowired
+    @MockBean
     SecretTool secretTool;
     @Test
     @Order(1)

@@ -36,13 +36,18 @@ public final class Jwt {
                 .build();
     }
 
-    public String newToken(Claims claims) {
+    public String newToken(Claims claims, Boolean isRefreshToken) {
         Date now = new Date();
         JWTCreator.Builder builder = com.auth0.jwt.JWT.create();
         builder.withIssuer(issuer);
         builder.withIssuedAt(now);
         if (expirySeconds > 0) {
-            builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 1_000L));
+            if (isRefreshToken) {
+                builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 2_592_000L));
+            }
+            else {
+                builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 1_000L));
+            }
         }
         builder.withClaim("userKey", claims.userKey);
         builder.withClaim("name", claims.name);
@@ -55,7 +60,7 @@ public final class Jwt {
         Claims claims = verify(token);
         claims.eraseIat();
         claims.eraseExp();
-        return newToken(claims);
+        return newToken(claims, false);
     }
 
     public Claims verify(String token) throws JWTVerificationException {

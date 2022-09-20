@@ -31,7 +31,7 @@ server:
   port: 8080
 jwt:
   token:
-    header: api_key
+    header: Authorization
     issuer: oclock
     clientSecret: Rel3Bjce2MajBo09qgkNgYaTuzvJe8iwnBFhsDS5
     expirySeconds: 0

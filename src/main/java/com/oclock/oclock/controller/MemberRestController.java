@@ -129,14 +129,17 @@ public class MemberRestController {
     //TODO login 여기에 구현
     @PostMapping(path = "login")
     @ApiOperation(value = "사용자 로그인 (API 토큰 필요없음)")
-    public ApiResult<AuthenticationResultDto> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
+    public ResponseEntity<?> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(authRequest.getEmail(), authRequest.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return OK(
-                    new AuthenticationResultDto((AuthenticationResult) authentication.getDetails())
-            );
+            ResponseDto<?> response = ResponseDto.<String>builder()
+                    .code("200")
+                    .response("")
+                    .data(authentication.getDetails().toString())
+                    .build();
+            return ResponseEntity.ok().body(response);
         } catch (AuthenticationException e) {
             throw new UnauthorizedException(e.getMessage());
         }

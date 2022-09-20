@@ -9,15 +9,19 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @Getter
 public class AuthenticationResult {
-    private final String apiToken;
+    private final String accessToken;
+
+    private final String refreshToken;
 
     private final Member member;
 
-    public AuthenticationResult(String apiToken, Member member) {
-        checkArgument(apiToken != null, "apiToken must be provided.");
+    public AuthenticationResult(String accessToken, String refreshToken, Member member) {
+        checkArgument(accessToken != null, "apiToken must be provided.");
+        checkArgument(refreshToken != null, "apiToken must be provided.");
         checkArgument(member != null, "user must be provided.");
 
-        this.apiToken = apiToken;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.member = member;
     }
 
@@ -28,7 +32,8 @@ public class AuthenticationResult {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("apiToken", apiToken)
+                .append("accessToken", accessToken)
+                .append("refreshToken", refreshToken)
                 .append("Member", member)
                 .toString();
     }
