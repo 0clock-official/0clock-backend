@@ -25,7 +25,8 @@ import java.util.regex.Pattern;
 
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
-import static org.apache.logging.log4j.util.Strings.isNotEmpty;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+
 
 public class JwtAuthenticationTokenFilter extends GenericFilterBean {
     private static final Pattern BEARER = Pattern.compile("^Bearer$", Pattern.CASE_INSENSITIVE);

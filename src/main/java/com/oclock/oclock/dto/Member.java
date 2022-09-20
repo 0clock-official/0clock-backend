@@ -79,6 +79,11 @@ public class Member {
 
     public String newApiToken(Jwt jwt, String[] roles) {
         Jwt.Claims claims = Jwt.Claims.of(id, nickName, email, roles);
-        return jwt.newToken(claims);
+        return jwt.newToken(claims, false);
+    }
+
+    public String newRefreshToken(Jwt jwt, String[] roles) {
+        Jwt.Claims claims = Jwt.Claims.of(id, nickName, email, roles);
+        return jwt.newToken(claims, true);
     }
 }
