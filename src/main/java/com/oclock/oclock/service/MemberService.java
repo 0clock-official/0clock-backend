@@ -43,4 +43,6 @@ public interface MemberService {
     void renewVerification(String email, String verification);
 
     String createRandomCode() throws NoSuchAlgorithmException;
+
+    void mergeToken(long id, String verification);
 }

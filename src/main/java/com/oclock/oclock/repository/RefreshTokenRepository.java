@@ -16,22 +16,27 @@ public class RefreshTokenRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    List<RefreshToken> findByRefreshToken(String refreshToken) {
+    public List<RefreshToken> findByRefreshToken(String refreshToken) {
         String sql = "SELECT * FROM refreshToken WHERE refresthToken = ?";
         return jdbcTemplate.query(sql, new RefreshTokenMapper<>(), refreshToken);
     }
 
-    boolean existsByEmail(String email) {
-        String sql = "SELECT * FROM refreshToken WHERE email=?";
-        return !jdbcTemplate.query(sql, new RefreshTokenMapper<>(), email).isEmpty();
+    public boolean existsById(long id) {
+        String sql = "SELECT * FROM refreshToken WHERE id=?";
+        return !jdbcTemplate.query(sql, new RefreshTokenMapper<>(), id).isEmpty();
     }
 
-    int insertRefreshToken(String email, String refreshToken) {
-        String sql = "INSERT INTO refreshToken (email, refreshToken) VALUES(?, ?)";
-        return jdbcTemplate.update(sql, email, refreshToken);
+    public int insertRefreshToken(long id, String refreshToken) {
+        String sql = "INSERT INTO refreshToken (id, refreshToken) VALUES(?, ?)";
+        return jdbcTemplate.update(sql, id, refreshToken);
     }
 
-    void deleteByEmail(String email) {
+    public int updateRefreshToken(String refreshToken, long id) {
+        String sql = "UPDATE refreshToken set verification = ? where id = ?";
+        return jdbcTemplate.update(sql, refreshToken, id);
+    }
+
+    public void deleteByEmail(String email) {
         String sql = "DELETE FROM refreshToken WHERE email=?";
         jdbcTemplate.update(sql, email);
     }

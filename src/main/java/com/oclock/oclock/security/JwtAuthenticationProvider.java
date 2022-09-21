@@ -5,6 +5,7 @@ import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.model.Role;
 import com.oclock.oclock.service.MemberService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,6 +20,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     private final Jwt jwt;
 
     private final MemberService memberService;
+    @Getter
+    private String accessToken;
+    @Getter
+    private String refreshToken;
+
+
+
+
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -41,9 +50,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             Member member = memberService.login(new Email(request.getEmail()), request.getPassword());
             JwtAuthenticationToken authenticated =
                     new JwtAuthenticationToken(new JwtAuthentication(member.getId(), member.getEmail(), member.getNickName()), null, createAuthorityList(Role.USER.value()));
-            String accessToken = member.newApiToken(jwt, new String[]{Role.USER.value()});
-            String refreshToken = member.newRefreshToken(jwt, new String[]{Role.USER.value()});
-            authenticated.setDetails(new AuthenticationResult(accessToken, refreshToken, member));
+            accessToken = member.newApiToken(jwt, new String[]{Role.USER.value()});
+            refreshToken = member.newRefreshToken(jwt, new String[]{Role.USER.value()});
+            authenticated.setDetails(new AuthenticationResult(accessToken, refreshToken));
             return authenticated;
         } catch (Exception e) {
             throw new NotFoundException(e.getMessage());

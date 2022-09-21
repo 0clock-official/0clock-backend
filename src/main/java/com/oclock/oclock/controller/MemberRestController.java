@@ -39,6 +39,8 @@ public class MemberRestController {
 
     private final Jwt jwt;
 
+    private final JwtAuthenticationProvider jwtProvider;
+
     private final MemberService memberService;
 
     private final EmailService emailService;
@@ -91,15 +93,17 @@ public class MemberRestController {
 
 
     @PostMapping(path = "join")
-    public ApiResult<AuthenticationResultDto> join(@RequestBody MemberDto memberDto) {
+    public ApiResult<AuthenticationResult> join(@RequestBody MemberDto memberDto) {
         memberService.join(memberDto);
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            //TODO substr Tokens
+            String accessToken = authentication.getDetails().toString();
+            String refreshToken = authentication.getDetails().toString();
             return OK(
-                    new AuthenticationResultDto((AuthenticationResult) authentication.getDetails())
-            );
+                    new AuthenticationResult(accessToken, refreshToken));
         } catch (AuthenticationException e) {
             throw new UnauthorizedException(e.getMessage());
         }
@@ -132,12 +136,15 @@ public class MemberRestController {
     public ResponseEntity<?> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(authRequest.getEmail(), authRequest.getPassword());
-            Authentication authentication = authenticationManager.authenticate(authToken);
+            Authentication authentication = jwtProvider.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            Member member = memberService.findByEmail(new Email(authRequest.getEmail()));
+
+            memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
             ResponseDto<?> response = ResponseDto.<String>builder()
                     .code("200")
                     .response("")
-                    .data(authentication.getDetails().toString())
+                    .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()).toString())
                     .build();
             return ResponseEntity.ok().body(response);
         } catch (AuthenticationException e) {

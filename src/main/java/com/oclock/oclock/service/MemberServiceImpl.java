@@ -6,6 +6,7 @@ import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.model.Verification;
 import com.oclock.oclock.repository.MemberRepository;
+import com.oclock.oclock.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public Member join(MemberDto memberDto) {
@@ -138,5 +140,12 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void resetPassword(String email) {
 
+    }
+    @Override
+    public void mergeToken(long id, String verification) {
+        if (refreshTokenRepository.existsById(id)) {
+            refreshTokenRepository.updateRefreshToken(verification, id);
+        }
+        else refreshTokenRepository.insertRefreshToken(id,verification);
     }
 }
