@@ -141,10 +141,10 @@ public class MemberRestController {
             Member member = memberService.findByEmail(new Email(authRequest.getEmail()));
 
             memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
-            ResponseDto<?> response = ResponseDto.<String>builder()
+            ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200")
                     .response("")
-                    .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()).toString())
+                    .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.ok().body(response);
         } catch (AuthenticationException e) {

@@ -1,6 +1,6 @@
 package com.oclock.oclock.security;
 
-import com.oclock.oclock.dto.Member;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -22,7 +22,6 @@ public class AuthenticationResult {
         this.refreshToken = refreshToken;
 
     }
-
 
     @Override
     public String toString() {
