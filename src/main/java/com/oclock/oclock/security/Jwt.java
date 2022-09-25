@@ -11,6 +11,8 @@ import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -41,17 +43,18 @@ public final class Jwt {
         JWTCreator.Builder builder = com.auth0.jwt.JWT.create();
         builder.withIssuer(issuer);
         builder.withIssuedAt(now);
+        LocalDateTime localDateTime = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         if (expirySeconds > 0) {
             if (isRefreshToken) {
-                builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 2_592_000L));
+                localDateTime = localDateTime.plusWeeks(2L);
+                builder.withExpiresAt(java.sql.Timestamp.valueOf(localDateTime));
             }
             else {
-                builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 1_000L));
+                localDateTime = localDateTime.plusHours(2L);
+                builder.withExpiresAt(java.sql.Timestamp.valueOf(localDateTime));
             }
         }
         builder.withClaim("userKey", claims.userKey);
-        builder.withClaim("name", claims.name);
-        builder.withClaim("email", claims.email.getAddress());
         builder.withArrayClaim("roles", claims.roles);
         return builder.sign(algorithm);
     }
