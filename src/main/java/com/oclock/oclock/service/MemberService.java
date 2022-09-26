@@ -26,8 +26,6 @@ public interface MemberService {
     Member findById(Long id);
 
     Member findByEmail(Email email);
-    void joinWithToken(String token, String password);
-    File joinStep4(File image);
 
     Boolean deleteAccount(Long id);
     Member login(Email email, String password); // 로그인

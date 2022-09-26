@@ -10,24 +10,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class JwtAuthentication {
     public final Long id;
-    public final Email email;
 
-    public final String name;
-
-    JwtAuthentication(Long id, Email email, String name) {
+    JwtAuthentication(Long id) {
         checkArgument(id != null, "id must be provided.");
-        checkArgument(email != null, "email must be provided.");
-        checkArgument(name != null, "member must be provided.");
         this.id = id;
-        this.email = email;
-        this.name = name;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("email", email)
-                .append("name", name)
+                .append("userKey", id)
                 .toString();
     }
 }

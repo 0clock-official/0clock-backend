@@ -57,7 +57,6 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    //TODO 랜덤 번호 서비스단에서 처리 리포에서 DB로 저장
     @PostMapping(path = "email")
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException, NoSuchAlgorithmException {
         String email = request.get("email");
@@ -99,7 +98,6 @@ public class MemberRestController {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            //TODO substr Tokens
             String accessToken = authentication.getDetails().toString();
             String refreshToken = authentication.getDetails().toString();
             return OK(
@@ -110,15 +108,11 @@ public class MemberRestController {
     }
 
 
-    
-    //TODO fcm 재발급 구현
-
     @PutMapping(path = "fcm")
     public void refreshFcm(@RequestBody Map<String, String> body) {
         memberService.updateFcm(body);
     }
 
-    //TODO 업로드 구현
     @PostMapping(path = "join/studentCard")
     public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
         memberService.updateEmailStudentCard(body);
@@ -129,8 +123,7 @@ public class MemberRestController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
-    
-    //TODO login 여기에 구현
+
     @PostMapping(path = "login")
     @ApiOperation(value = "사용자 로그인 (API 토큰 필요없음)")
     public ResponseEntity<?> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
@@ -172,7 +165,7 @@ public class MemberRestController {
 
     @GetMapping(path = "self")
     @ApiOperation(value = "자기 정보 불러오기")
-    public ApiResult<Member> me(@AuthenticationPrincipal JwtAuthentication authentication) {
+    public ApiResult<Member> me(@AuthenticationPrincipal  JwtAuthentication authentication) {
         return OK(memberService.findById(authentication.id));
     }
 

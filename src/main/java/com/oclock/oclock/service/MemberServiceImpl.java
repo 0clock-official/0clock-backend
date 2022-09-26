@@ -47,7 +47,8 @@ public class MemberServiceImpl implements MemberService {
         Email email = new Email(body.get("email"));
         memberRepository.updateFcm(email.getAddress(), body.get("fcmToken"));
     }
-
+    
+    //TODO 학생증 업로드 구현하기
     @Override
     public void updateEmailStudentCard(Map<String, String> body) {
 
@@ -69,16 +70,6 @@ public class MemberServiceImpl implements MemberService {
     public Member findByEmail(Email email) {
         checkArgument(email != null, "email must be provided.");
         return memberRepository.findByEmail(email);
-    }
-
-    @Override
-    public void joinWithToken(String token, String password) {
-
-    }
-
-    @Override
-    public File joinStep4(File image) {
-        return image;
     }
 
 
@@ -132,11 +123,12 @@ public class MemberServiceImpl implements MemberService {
         return Integer.toString(randomInt);
     }
 
+    //TODO 회원정보 수정 
     @Override
     public void updateMember(Member member) {
 
     }
-
+    //TODO 패스워드 재설정
     @Override
     public void resetPassword(String email) {
 

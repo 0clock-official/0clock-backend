@@ -72,8 +72,6 @@ public final class Jwt {
 
     static public class Claims {
         Long userKey;
-        String name;
-        Email email;
         String[] roles;
         Date iat;
         Date exp;
@@ -85,12 +83,6 @@ public final class Jwt {
             Claim userKey = decodedJWT.getClaim("userKey");
             if (!userKey.isNull())
                 this.userKey = userKey.asLong();
-            Claim name = decodedJWT.getClaim("name");
-            if (!name.isNull())
-                this.name = name.asString();
-            Claim email = decodedJWT.getClaim("email");
-            if (!email.isNull())
-                this.email = new Email(email.asString());
             Claim roles = decodedJWT.getClaim("roles");
             if (!roles.isNull())
                 this.roles = roles.asArray(String.class);
@@ -101,8 +93,6 @@ public final class Jwt {
         public static Claims of(long userKey, String name, Email email, String[] roles) {
             Claims claims = new Claims();
             claims.userKey = userKey;
-            claims.name = name;
-            claims.email = email;
             claims.roles = roles;
             return claims;
         }
@@ -127,8 +117,6 @@ public final class Jwt {
         public String toString() {
             return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                     .append("userKey", userKey)
-                    .append("name", name)
-                    .append("email", email)
                     .append("roles", Arrays.toString(roles))
                     .append("iat", iat)
                     .append("exp", exp)
