@@ -1,8 +1,10 @@
 package com.oclock.oclock.service;
 
+import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.model.Email;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,14 +18,14 @@ public interface MemberService {
     // 각 가입 단계
     Member join(MemberDto memberDto);
 
-    void editMyself(Map<String, String> body);
+    void editMyself(long memberId, Map<String, String> body);
 
-    void updateFcm(Map<String, String> body);
+    void updateFcm(long memberId,String fcmToken);
     void updateEmailStudentCard(Map<String, String> body);
 
     boolean checkEmail(Email email);
 
-    Member findById(Long id);
+    Member findById(Long id, RowMapper<Member> rowMapper);
 
     Member findByEmail(Email email);
 
@@ -33,8 +35,6 @@ public interface MemberService {
     void resetPassword(String email); // 비밀번호 리셋 요청
 
     List<Member> getMembers();
-
-    Member other(Long id);
 
     boolean checkVerification(String email, String verification);
 

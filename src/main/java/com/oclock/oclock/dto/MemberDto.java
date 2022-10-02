@@ -1,17 +1,17 @@
 package com.oclock.oclock.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MemberDto {
     String email;
     String password;
     String nickname;
     Integer major;
     String chattingTime;
-    Integer sex;
+    Integer memberSex;
+    Integer matchingSex;
     String fcmToken;
 }

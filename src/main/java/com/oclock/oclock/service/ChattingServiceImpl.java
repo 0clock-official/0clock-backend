@@ -9,8 +9,11 @@ import com.oclock.oclock.repository.ChattingRepository;
 import com.oclock.oclock.repository.JdbcChattingRepository;
 import com.oclock.oclock.repository.JdbcMemberRepository;
 import com.oclock.oclock.repository.MemberRepository;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
+import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import com.oclock.oclock.secret.SecretTool;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -45,7 +48,7 @@ public class ChattingServiceImpl implements ChattingService {
 //        builder.chattingTime(member.getChattingTime()); // 요청한 사람의 채팅시간보다 커야 서로 시간이 겹친다. 겹치는 시간중 가장 빠른 시간은 상대의 채팅시간이다.
 //        ChattingRoom chattingRoom = builder.build();
 //        return chattingRepository.createChattingRoom(chattingRoom);
-        requestMember = memberRepository.selectMemberById(requestMember.getId());
+        requestMember = memberRepository.selectMemberById(requestMember.getId(),new MemberRowMapper<>());
         List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
         if(randomMembers.isEmpty()){
             throw new OClockException();
@@ -75,10 +78,11 @@ public class ChattingServiceImpl implements ChattingService {
     @Override
     public Member getChattingMember(Member requestMember, ChattingRoom chattingRoom) {
         long requestMemberId = requestMember.getId();
+        RowMapper<Member> rowMapper = new MemberRowMapperNoEmailAndChattingRoom<>();
         if(chattingRoom.getMember1()==requestMemberId){
-            return memberRepository.selectMemberById(chattingRoom.getMember2());
+            return memberRepository.selectMemberById(chattingRoom.getMember2(),rowMapper);
         }else if(chattingRoom.getMember2()==requestMemberId){
-            return memberRepository.selectMemberById(chattingRoom.getMember1());
+            return memberRepository.selectMemberById(chattingRoom.getMember1(),rowMapper);
         }else{
             throw new OClockException();
         }

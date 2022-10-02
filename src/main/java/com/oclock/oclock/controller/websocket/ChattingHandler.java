@@ -7,6 +7,8 @@ import com.google.firebase.messaging.Notification;
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
+import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import com.oclock.oclock.service.ChattingService;
 import com.oclock.oclock.service.MemberService;
 import com.oclock.oclock.service.PushService;
@@ -36,7 +38,7 @@ public class ChattingHandler extends TextWebSocketHandler {
     private static final ObjectMapper mapper = new ObjectMapper();
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        Member member = memberService.findById(1L);
+        Member member = memberService.findById(1L,new MemberRowMapper<>());
         if (member.getChattingRoomId()==null || member.getChattingRoomId().longValue()==0L)
             chattingService.randomMatching(member);
     }
@@ -47,7 +49,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         String accessToken = textMap.get("Authorization");
         String chattingMessage = textMap.get("message");
         long memberId = 1l; // Todo 토큰으로부터 멤버 아이디 추출 작업 필요
-        Member requestMember = memberService.findById(memberId);
+        Member requestMember = memberService.findById(memberId,new MemberRowMapper<>());
         ChattingRoom chattingRoom = chattingService.getChattingRoom(requestMember);
         long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
         ChattingLog chattingLog = ChattingLog.builder()
@@ -64,7 +66,7 @@ public class ChattingHandler extends TextWebSocketHandler {
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             memberIdSessionMap.get(receiveMemberId).sendMessage(textMessage);
         }else{
-            Member receiver = memberService.findById(receiveMemberId);
+            Member receiver = memberService.findById(receiveMemberId,new MemberRowMapperNoEmailAndChattingRoom<>());
             Notification notification = Notification.builder()
                     .setTitle(receiver.getNickName())
                     .setBody(chattingMessage).build();

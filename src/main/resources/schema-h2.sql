@@ -65,7 +65,7 @@ CREATE TABLE `member` (
   `matchingSex` tinyint(4) unsigned NOT NULL,
   `major` int(11) unsigned NOT NULL,
   `nickName` varchar(64) NOT NULL DEFAULT '',
-  `joinStep` tinyint(4) NOT NULL,
+  `joinStep` tinyint(4) DEFAULT 1,
   `fcmToken` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
@@ -85,7 +85,6 @@ CREATE TABLE `memberVerification` (
   `verification` varchar(30),
   PRIMARY KEY (`memberEmail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-ALTER TABLE `memberVerification` ADD CONSTRAINT `memberVerification_ibfk_1` FOREIGN KEY (`memberEmail`) REFERENCES `member` (`email`);
 
 CREATE TABLE `refreshToken` (
   `id` int(11),

@@ -5,6 +5,7 @@ import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.model.Verification;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,15 +14,15 @@ public interface MemberRepository {
 
     Member join(MemberDto memberDto);
 
-    void updateNickname(String nickname);
-    void updateChattingTime(String chattingTime);
+    void updateNickname(long memberId, String nickname);
+    void updateChattingTime(long memberId, int chattingTime);
     int checkJoinStep(String email);
     void addMemberEmail(String email);
     void compareMemberEmailCode(String email, String code);
     void addMemberPassword(Member member);
     void addMemberPrivacy(Member member);
-    Member selectMemberById(long id);
-    Member selectMemberByEmail(String email);
+    Member selectMemberById(long id, RowMapper<Member> rowMapper);
+    Member selectMemberByEmail(String email,RowMapper<Member> rowMapper);
     Member selectMemberByEmailAndPassword(String email, String password);
     List<Member> selectRandomMembers(Member requestMember);
     List<Long> selectRandomMemberIds(Member requestMember);
@@ -35,5 +36,5 @@ public interface MemberRepository {
 
     void updateVerification(String email, String verification);
 
-    void updateFcm(String email, String fcmToken);
+    void updateFcm(long memberId, String fcmToken);
 }

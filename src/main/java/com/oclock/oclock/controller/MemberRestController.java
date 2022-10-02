@@ -5,14 +5,18 @@ import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.security.*;
+import com.oclock.oclock.service.ChattingService;
 import com.oclock.oclock.service.EmailService;
 import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -22,6 +26,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import javax.mail.MessagingException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,6 +51,8 @@ public class MemberRestController {
 
     private final EmailService emailService;
 
+    private final ChattingService chattingService;
+
     //Test용 Get멤버. Member의 객체 정보만 반환해야함
 
     @GetMapping(path  = "getMembers")
@@ -57,7 +65,7 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "email")
+    @PostMapping(path = "email") // 확인
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException, NoSuchAlgorithmException {
         String email = request.get("email");
         String verification = memberService.createRandomCode();
@@ -65,13 +73,13 @@ public class MemberRestController {
         emailService.sendVerificationHtmlMessage(new Email(email), verification);
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200 OK")
-                .response("")
+                .response("이메일로 인증코드가 전송되었습니다.")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "email/verification")
+    @PostMapping(path = "email/verification") //확인
     public ResponseEntity<?> checkVerification(@RequestBody Map<String, String> request) throws MessagingException {
         String email = request.get("email");
         if (memberService.checkVerification(email, request.get("code"))) {
@@ -91,29 +99,37 @@ public class MemberRestController {
     }
 
 
-    @PostMapping(path = "join")
-    public ApiResult<AuthenticationResult> join(@RequestBody MemberDto memberDto) {
+    @PostMapping(path = "join") //확인 ToDo 코드가 갈끔하지 못함. 수정할 수 있으면 수정 필요
+    public ResponseEntity<ResponseDto> join(@RequestBody MemberDto memberDto) {
         memberService.join(memberDto);
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String accessToken = authentication.getDetails().toString();
-            String refreshToken = authentication.getDetails().toString();
-            return OK(
-                    new AuthenticationResult(accessToken, refreshToken));
+            LoggerFactory.getLogger(this.getClass()).info(accessToken);
+            String[] tokens = accessToken.split(",");
+            accessToken = tokens[0].replace("AuthenticationResult[accessToken=","");
+            String refreshToken = tokens[1].replace("refreshToken=","");
+            AuthenticationResult authenticationResult = new AuthenticationResult(accessToken,refreshToken);
+            return  ResponseEntity.ok(ResponseDto.builder().code("200")
+                    .response("회원가입이 정상적으로 완료되었습니다.")
+                    .data(authenticationResult).build());
+
         } catch (AuthenticationException e) {
             throw new UnauthorizedException(e.getMessage());
         }
     }
 
 
-    @PutMapping(path = "fcm")
-    public void refreshFcm(@RequestBody Map<String, String> body) {
-        memberService.updateFcm(body);
+    @PutMapping(path = "fcm") //확인
+    public ResponseEntity<ResponseDto> refreshFcm(@AuthenticationPrincipal  JwtAuthentication authentication, @RequestBody Map<String, String> body) {
+        String fcm = body.get("fcm");
+        memberService.updateFcm(authentication.id,fcm);
+        return ResponseEntity.ok(ResponseDto.builder().response("fcm 토큰이 갱신되었습니다.").code("200").data("").build());
     }
 
-    @PostMapping(path = "join/studentCard")
+    @PostMapping(path = "join/studentCard") // ToDo 구현 필요
     public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
         memberService.updateEmailStudentCard(body);
         ResponseDto<?> response = ResponseDto.<String >builder()
@@ -124,7 +140,7 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "login")
+    @PostMapping(path = "login") // 확인
     @ApiOperation(value = "사용자 로그인 (API 토큰 필요없음)")
     public ResponseEntity<?> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
         try {
@@ -136,7 +152,7 @@ public class MemberRestController {
             memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
             ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200")
-                    .response("")
+                    .response("로그인 되었습니다.")
                     .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.ok().body(response);
@@ -145,34 +161,49 @@ public class MemberRestController {
         }
     }
 
-    @PostMapping(path = "{email}/passwordReset")
-    public ResponseEntity<?> resetPassword(@PathVariable("email") String email, @RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
+    @PostMapping(path = "passwordReset") // 미구현
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
         Member member = memberService.findByEmail(new Email(email));
-        member.setPassword(body.get("password"));
+        //Todo 이메일로 비밀번호 초기화 링크가 전송되어야 함.
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
-                .response("이메일 전송 성공")
+                .response("비밀번호 초기화 링크가 메일로 전송되었습니다.")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping
-    public ResponseEntity<?> editMyself(@RequestBody Map<String, String> body) {
-        memberService.editMyself(body);
-        return ResponseEntity.ok().body("");
+    @PutMapping // 확인
+    public ResponseEntity<ResponseDto> editMyself(@AuthenticationPrincipal  JwtAuthentication authentication,@RequestBody Map<String, String> body) {
+        memberService.editMyself(authentication.id,body);
+        return ResponseEntity.ok().body(ResponseDto.builder().response("개인정보 수정이 완료되었습니다.").code("200").data("").build());
     }
 
     @GetMapping(path = "self")
-    @ApiOperation(value = "자기 정보 불러오기")
-    public ApiResult<Member> me(@AuthenticationPrincipal  JwtAuthentication authentication) {
-        return OK(memberService.findById(authentication.id));
+    @ApiOperation(value = "자기 정보 불러오기") // 확인 Todo 응답에 불필요한 값 포함 안되게 수정 필요
+    public ResponseEntity<ResponseDto> me(@AuthenticationPrincipal  JwtAuthentication authentication) {
+        Member member = memberService.findById(authentication.id, (rs, rowNum) -> Member.builder()
+                .email(new Email(rs.getString("email")))
+                .nickName(rs.getString("nickName"))
+                .major(rs.getInt("major"))
+                .chattingTime(rs.getInt("chattingTime"))
+                .memberSex(rs.getInt("memberSex"))
+                .matchingSex(rs.getInt("matchingSex"))
+                .build());
+        ResponseDto<Member> dto = ResponseDto.<Member>builder()
+                .code("200")
+                .response("개인정보 조회에 성공하였습니다.")
+                .data(member)
+                .build();
+        return ResponseEntity.ok(dto);
     }
 
-    @GetMapping(path = "other")
+    @GetMapping(path = "other") // 확인 Todo 응답에 불필요한 값 포함 안되게 수정 필요
     @ApiOperation(value = "채팅하고있는 상대방 정보 조회")
     public ResponseEntity<?> other(@AuthenticationPrincipal JwtAuthentication authentication) {
-        Member other = memberService.other(authentication.id);
+        Member requestMember = memberService.findById(authentication.id,new MemberRowMapper<>());
+        Member other = chattingService.getChattingMember(requestMember);
         ResponseDto<Member> response = ResponseDto.<Member>builder()
                 .code("200")
                 .response("상대방 정보 불러오기 성공")
