@@ -50,9 +50,10 @@ public class ChattingServiceImpl implements ChattingService {
         if(randomMembers.isEmpty()){
             throw new OClockException();
         }else{
-            int random = new Random().nextInt();
-            random = random % (randomMembers.size()-1);
-            Member selectedMember = randomMembers.get(random);
+//            int random = new Random().nextInt();
+//            random = random % (randomMembers.size()-1);
+//            Member selectedMember = randomMembers.get(random);
+            Member selectedMember = randomMembers.get(0);
             int chattingTime = Math.max(requestMember.getChattingTime(), selectedMember.getChattingTime());
             ChattingRoom chattingRoom = ChattingRoom.builder()
                     .member1(requestMember.getId())
