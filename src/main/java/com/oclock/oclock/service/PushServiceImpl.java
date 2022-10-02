@@ -5,7 +5,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.oclock.oclock.dto.Member;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PushServiceImpl implements PushService {
     @Override
     public void pushMessage(Message message) {
