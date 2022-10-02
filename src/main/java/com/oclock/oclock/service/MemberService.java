@@ -16,7 +16,7 @@ public interface MemberService {
     // 각 가입 단계
     Member join(MemberDto memberDto);
 
-    void editMyself(Map<String, String> body);
+    void editMyself(Map<String, String> body, Long id);
 
     void updateFcm(Map<String, String> body);
     void updateEmailStudentCard(Map<String, String> body);
@@ -29,8 +29,8 @@ public interface MemberService {
 
     Boolean deleteAccount(Long id);
     Member login(Email email, String password); // 로그인
-    void updateMember(Member member); // 회원정보 수정
-    void resetPassword(String email); // 비밀번호 리셋 요청
+
+    void resetPassword(Member member); // 비밀번호 리셋 요청
 
     List<Member> getMembers();
 

@@ -28,24 +28,22 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public Member join(MemberDto memberDto) {
-        String sql = "insert into member (email, password, nickname, major, chatting_time, sex, fcmToken) values(?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getSex(), memberDto.getFcmToken());
+        String sql = "insert into member (email, password, nickname, major, chattingTime, memberSex, matchingSex, fcmToken) values(?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getSex(), memberDto.getMatchingSex(), memberDto.getFcmToken());
         return selectMemberByEmail(memberDto.getEmail());
     }
 
     @Override
-    public void updateNickname(String nickname) {
+    public void updateNickname(String nickname, Long id) {
+        String sql = "update member set nickname = ? where id = ?";
+        jdbcTemplate.update(sql, nickname, id);
 
     }
 
     @Override
-    public void updateChattingTime(String chattingTime) {
-
-    }
-
-    @Override
-    public int checkJoinStep(String email) {
-        return selectMemberByEmail(email).getJoinStep();
+    public void updateChattingTime(String chattingTime, Long id) {
+        String sql = "update member set nickname = ? where id = ?";
+        jdbcTemplate.update(sql, chattingTime, id);
     }
     @Override
     public void addMemberEmail(String email) {
@@ -166,7 +164,7 @@ public class JdbcMemberRepository implements MemberRepository{
     public List<Verification> getVerification(String email) {
         String sql = "SELECT * FROM memberVerification WHERE memberEmail = ?";
         List<Verification> verifications;
-        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>());
+        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>(), email);
         return verifications;
     }
 

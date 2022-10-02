@@ -13,11 +13,11 @@ public class MemberRowMapperNoEmailAndChattingRoom<T extends Member> implements 
         Member.MemberBuilder builder = Member.builder();
         builder.id(rs.getLong("id"))
                 .memberSex(rs.getInt("memberSex"))
+                .matchingSex(rs.getInt("matchingSex"))
                 .major(rs.getInt("major"))
                 .chattingTime(rs.getInt("chattingTime"))
                 .nickName(rs.getString("nickName"))
-                .matchingSex(rs.getInt("matchingSex"))
-                .joinStep(rs.getInt("joinStep"));
+                .fcmToken(rs.getString("fcmToken"));
         return (T) builder.build();
     }
 }

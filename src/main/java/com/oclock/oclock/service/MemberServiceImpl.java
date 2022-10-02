@@ -33,12 +33,12 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void editMyself(Map<String, String> body) {
+    public void editMyself(Map<String, String> body, Long id) {
         if (body.get("nickname") != null && body.get("nickname") != "") {
-            memberRepository.updateNickname(body.get("nickname"));
+            memberRepository.updateNickname(body.get("nickname"), id);
         }
         if (body.get("chattingTime") != null && body.get("chattingTime") != "") {
-            memberRepository.updateChattingTime(body.get("chattingTime"));
+            memberRepository.updateChattingTime(body.get("chattingTime"), id);
         }
     }
 
@@ -118,20 +118,16 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public String createRandomCode() throws NoSuchAlgorithmException {
-        SecureRandom secureRandom = SecureRandom.getInstance("NativePRNG");
+        SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
         int randomInt = secureRandom.nextInt(100000);
         return Integer.toString(randomInt);
     }
 
-    //TODO 회원정보 수정 
-    @Override
-    public void updateMember(Member member) {
 
-    }
     //TODO 패스워드 재설정
     @Override
-    public void resetPassword(String email) {
-
+    public void resetPassword(Member member) {
+        memberRepository.addMemberPassword(member);
     }
     @Override
     public void mergeToken(long id, String verification) {

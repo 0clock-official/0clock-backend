@@ -20,13 +20,13 @@ INSERT INTO `matchingSex` VALUES
 (2,'female'),
 (3,'all');
 SET foreign_key_checks = 1;
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
-VALUES ('test@test.com','dasda',NULL,1,1,3,1,'test1',6);
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
-VALUES('test2@test.com','dasda',NULL,1,2,3,1,'test2',6);
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
-VALUES('test3@test.com','dasda',NULL,1,2,2,1,'test3',6);
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
-VALUES('test4@test.com','dasda',NULL,1,1,1,1,'test4',6);
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep)
-VALUES('test5@test.com','dasda',NULL,1,2,1,1,'test5',6);
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
+VALUES ('test@test.com','dasda',NULL,1,1,3,1,'test1');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
+VALUES('test2@test.com','dasda',NULL,1,2,3,1,'test2');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
+VALUES('test3@test.com','dasda',NULL,1,2,2,1,'test3');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
+VALUES('test4@test.com','dasda',NULL,1,1,1,1,'test4');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
+VALUES('test5@test.com','dasda',NULL,1,2,1,1,'test5');

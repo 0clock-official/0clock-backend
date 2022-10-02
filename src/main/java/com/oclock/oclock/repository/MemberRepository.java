@@ -13,9 +13,8 @@ public interface MemberRepository {
 
     Member join(MemberDto memberDto);
 
-    void updateNickname(String nickname);
-    void updateChattingTime(String chattingTime);
-    int checkJoinStep(String email);
+    void updateNickname(String nickname, Long id);
+    void updateChattingTime(String chattingTime, Long id);
     void addMemberEmail(String email);
     void compareMemberEmailCode(String email, String code);
     void addMemberPassword(Member member);

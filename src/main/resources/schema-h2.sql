@@ -65,8 +65,8 @@ CREATE TABLE `member` (
   `matchingSex` tinyint(4) unsigned NOT NULL,
   `major` int(11) unsigned NOT NULL,
   `nickName` varchar(64) NOT NULL DEFAULT '',
-  `joinStep` tinyint(4) NOT NULL,
   `fcmToken` text DEFAULT NULL,
+  `useYn` char(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `major` (`major`),
@@ -90,6 +90,11 @@ ALTER TABLE `memberVerification` ADD CONSTRAINT `memberVerification_ibfk_1` FORE
 CREATE TABLE `refreshToken` (
   `id` int(11),
   `refreshToken` varchar(320),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `studentCard` (
+  `id` int(11),
+  `img` longblob NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ALTER TABLE `refreshToken` ADD CONSTRAINT `refreshToken_ibfk_1` FOREIGN KEY (`id`) REFERENCES `member` (`id`);

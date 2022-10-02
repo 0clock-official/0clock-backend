@@ -92,16 +92,22 @@ public class MemberRestController {
 
 
     @PostMapping(path = "join")
-    public ApiResult<AuthenticationResult> join(@RequestBody MemberDto memberDto) {
+    public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
         memberService.join(memberDto);
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String accessToken = authentication.getDetails().toString();
-            String refreshToken = authentication.getDetails().toString();
-            return OK(
-                    new AuthenticationResult(accessToken, refreshToken));
+            Member member = memberService.findByEmail(new Email(memberDto.getEmail()));
+
+            memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
+
+            ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
+                    .code("200 OK")
+                    .response("")
+                    .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
+                    .build();
+            return ResponseEntity.status(200).body(response);
         } catch (AuthenticationException e) {
             throw new UnauthorizedException(e.getMessage());
         }
@@ -146,9 +152,12 @@ public class MemberRestController {
     }
 
     @PostMapping(path = "{email}/passwordReset")
-    public ResponseEntity<?> resetPassword(@PathVariable("email") String email, @RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> resetPassword(@PathVariable("email") String email, @AuthenticationPrincipal JwtAuthentication authentication, @RequestBody Map<String, String> body) throws Exception {
         Member member = memberService.findByEmail(new Email(email));
+        if (member.getId() != authentication.id) throw new UnauthorizedException("Unauthorized access");
         member.setPassword(body.get("password"));
+        if (member.getPassword() == null) throw new Exception("There is no password input");
+        memberService.resetPassword(member);
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
                 .response("이메일 전송 성공")
@@ -158,14 +167,14 @@ public class MemberRestController {
     }
 
     @PutMapping
-    public ResponseEntity<?> editMyself(@RequestBody Map<String, String> body) {
-        memberService.editMyself(body);
+    public ResponseEntity<?> editMyself(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody Map<String, String> body) {
+        memberService.editMyself(body , authentication.id);
         return ResponseEntity.ok().body("");
     }
 
     @GetMapping(path = "self")
     @ApiOperation(value = "자기 정보 불러오기")
-    public ApiResult<Member> me(@AuthenticationPrincipal  JwtAuthentication authentication) {
+    public ApiResult<Member> me(@AuthenticationPrincipal JwtAuthentication authentication) {
         return OK(memberService.findById(authentication.id));
     }
 
@@ -186,17 +195,4 @@ public class MemberRestController {
     public ApiResult<Boolean> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
         return OK(memberService.deleteAccount(authentication.id));
     }
-
-
-
-
-//    @PostMapping(path = "join")
-//    @ApiOperation(value = "회원가입")
-//    public ApiResult<JoinResult> join(@RequestBody JoinRequest joinRequest) {
-//        Member member = memberService.join(new Email(joinRequest.getPrincipal()), joinRequest.getCredentials());
-//        String apiToken = member.newApiToken(jwt, new String[]{Role.USER.value()});
-//        return OK(
-//                new JoinResult(apiToken, member)
-//        );
-//    }
 }

@@ -37,7 +37,7 @@ public class EmailService {
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
         Context context = new Context();
-        context.setVariable("emailVerificationCode", "1111");
+        context.setVariable("emailVerificationCode", verification);
         helper.setFrom("okeullag@gmail.com");
         helper.setTo(email.getAddress());
         helper.setSubject("오클락 이메일 인증 이메일입니다.");
