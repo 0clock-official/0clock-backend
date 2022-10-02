@@ -32,6 +32,7 @@ dependencies {
 	implementation 'org.projectlombok:lombok'
 	implementation 'com.h2database:h2'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'commons-io:commons-io:2.8.0'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
