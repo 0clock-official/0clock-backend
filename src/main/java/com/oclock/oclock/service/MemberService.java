@@ -27,7 +27,7 @@ public interface MemberService {
 
     Member findByEmail(Email email);
 
-    Boolean deleteAccount(Long id);
+    void deleteAccount(Long id);
     Member login(Email email, String password); // 로그인
 
     void resetPassword(Member member); // 비밀번호 리셋 요청

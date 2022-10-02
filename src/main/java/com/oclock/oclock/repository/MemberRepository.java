@@ -35,4 +35,6 @@ public interface MemberRepository {
     void updateVerification(String email, String verification);
 
     void updateFcm(String email, String fcmToken);
+
+    void deleteAccount(Long id);
 }

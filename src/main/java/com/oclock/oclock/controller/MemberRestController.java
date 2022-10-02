@@ -1,8 +1,8 @@
 package com.oclock.oclock.controller;
 
-import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
+import com.oclock.oclock.dto.StudentCardDto;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.security.*;
@@ -12,6 +12,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -21,12 +23,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.oclock.oclock.dto.ApiResult.OK;
 
 @Slf4j
 @RestController
@@ -104,7 +109,7 @@ public class MemberRestController {
 
             ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200 OK")
-                    .response("")
+                    .response("회원가입 성공")
                     .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.status(200).body(response);
@@ -119,12 +124,21 @@ public class MemberRestController {
         memberService.updateFcm(body);
     }
 
-    @PostMapping(path = "join/studentCard")
-    public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
-        memberService.updateEmailStudentCard(body);
+    @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
+        String uploadFolder = "C:\\upload\\학생증\\" + studentCardDto.getEmail();
+        File uploadPath = new File(uploadFolder);
+        if(uploadPath.exists() == false) {
+            uploadPath.mkdirs();
+        }
+        uploadPath.createNewFile();
+
+        byte[] decodedBytes = Base64.getDecoder().decode(studentCardDto.getBase64img());
+        FileUtils.writeByteArrayToFile(new File(uploadFolder + "\\" + studentCardDto.getFileName()), decodedBytes);
+
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
-                .response("학생증 인증 성공")
+                .response("학생증 업로드 성공")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
@@ -142,7 +156,7 @@ public class MemberRestController {
             memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
             ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200")
-                    .response("")
+                    .response("로그인 성공")
                     .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.ok().body(response);
@@ -160,7 +174,7 @@ public class MemberRestController {
         memberService.resetPassword(member);
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
-                .response("이메일 전송 성공")
+                .response("인증 성공")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
@@ -174,8 +188,13 @@ public class MemberRestController {
 
     @GetMapping(path = "self")
     @ApiOperation(value = "자기 정보 불러오기")
-    public ApiResult<Member> me(@AuthenticationPrincipal JwtAuthentication authentication) {
-        return OK(memberService.findById(authentication.id));
+    public ResponseEntity<?> me(@AuthenticationPrincipal JwtAuthentication authentication) {
+        ResponseDto<?> response = ResponseDto.<Member>builder()
+                .code("200")
+                .response("자기 정보 불러오기 성공")
+                .data(memberService.findById(authentication.id))
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping(path = "other")
@@ -192,7 +211,13 @@ public class MemberRestController {
 
     @DeleteMapping
     @ApiOperation(value = "회원탈퇴")
-    public ApiResult<Boolean> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
-        return OK(memberService.deleteAccount(authentication.id));
+    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
+        memberService.deleteAccount(authentication.id);
+        ResponseDto<String> response = ResponseDto.<String>builder()
+                .code("200")
+                .response("회원탈퇴 성공")
+                .data("")
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 }

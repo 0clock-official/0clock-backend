@@ -16,7 +16,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
@@ -184,6 +183,12 @@ public class JdbcMemberRepository implements MemberRepository{
     public void updateFcm(String email, String fcmToken) {
         String sql = "UPDATE memberVerification set fcmToken = ? where memberEmail = ?";
         jdbcTemplate.update(sql, fcmToken, email);
+    }
+
+    @Override
+    public void deleteAccount(Long id) {
+        String sql = "DELETE from member where id = ?";
+        jdbcTemplate.update(sql, id);
     }
 }
 

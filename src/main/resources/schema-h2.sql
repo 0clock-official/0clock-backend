@@ -97,7 +97,7 @@ CREATE TABLE `studentCard` (
   `img` longblob NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-ALTER TABLE `refreshToken` ADD CONSTRAINT `refreshToken_ibfk_1` FOREIGN KEY (`id`) REFERENCES `member` (`id`);
+ALTER TABLE `refreshToken` ADD CONSTRAINT `refreshToken_ibfk_1` FOREIGN KEY (`id`) REFERENCES `member` (`id`) ON DELETE CASCADE;
 ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
 ALTER TABLE `member` ADD CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`);

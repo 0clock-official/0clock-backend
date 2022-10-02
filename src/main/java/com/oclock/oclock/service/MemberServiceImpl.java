@@ -74,8 +74,8 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public Boolean deleteAccount(Long id) {
-        return null;
+    public void deleteAccount(Long id) {
+        memberRepository.deleteAccount(id);
     }
 
     @Override
