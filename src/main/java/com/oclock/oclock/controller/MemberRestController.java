@@ -99,23 +99,23 @@ public class MemberRestController {
     }
 
 
-    @PostMapping(path = "join") //확인 ToDo 코드가 갈끔하지 못함. 수정할 수 있으면 수정 필요
-    public ResponseEntity<ResponseDto> join(@RequestBody MemberDto memberDto) {
+    @PostMapping(path = "join")
+    public ResponseEntity<?> join(@RequestBody MemberDto memberDto) {
         memberService.join(memberDto);
         try {
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String accessToken = authentication.getDetails().toString();
-            LoggerFactory.getLogger(this.getClass()).info(accessToken);
-            String[] tokens = accessToken.split(",");
-            accessToken = tokens[0].replace("AuthenticationResult[accessToken=","");
-            String refreshToken = tokens[1].replace("refreshToken=","");
-            AuthenticationResult authenticationResult = new AuthenticationResult(accessToken,refreshToken);
-            return  ResponseEntity.ok(ResponseDto.builder().code("200")
-                    .response("회원가입이 정상적으로 완료되었습니다.")
-                    .data(authenticationResult).build());
+            Member member = memberService.findByEmail(new Email(memberDto.getEmail()));
 
+            memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
+
+            ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
+                    .code("200 OK")
+                    .response("")
+                    .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
+                    .build();
+            return ResponseEntity.status(200).body(response);
         } catch (AuthenticationException e) {
             throw new UnauthorizedException(e.getMessage());
         }
