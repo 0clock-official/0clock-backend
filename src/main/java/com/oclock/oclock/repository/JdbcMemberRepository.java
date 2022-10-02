@@ -13,6 +13,7 @@ import com.oclock.oclock.rowmapper.MemberVerfiRowMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,24 +29,26 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public Member join(MemberDto memberDto) {
-        String sql = "insert into member (email, password, nickname, major, chatting_time, sex, fcmToken) values(?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getSex(), memberDto.getFcmToken());
-        return selectMemberByEmail(memberDto.getEmail());
+        String sql = "insert into member (email, password, nickname, major, chattingTime, memberSex,matchingSex, fcmToken) values(?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getMemberSex(),memberDto.getMatchingSex(), memberDto.getFcmToken());
+        return selectMemberByEmail(memberDto.getEmail(),new MemberRowMapper<>());
     }
 
     @Override
-    public void updateNickname(String nickname) {
-
+    public void updateNickname(long memberId, String nickname) {
+        String sql = "update member set nickName=? where id = ?";
+        jdbcTemplate.update(sql,nickname,memberId);
     }
 
     @Override
-    public void updateChattingTime(String chattingTime) {
-
+    public void updateChattingTime(long memberId, int chattingTime) {
+        String sql = "update member set chattingTime=? where id = ?";
+        jdbcTemplate.update(sql,chattingTime,memberId);
     }
 
     @Override
     public int checkJoinStep(String email) {
-        return selectMemberByEmail(email).getJoinStep();
+        return selectMemberByEmail(email,new MemberRowMapper<>()).getJoinStep();
     }
     @Override
     public void addMemberEmail(String email) {
@@ -76,11 +79,11 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
-    public Member selectMemberById(long id) {
+    public Member selectMemberById(long id, RowMapper<Member> rowMapper) {
         String sql = "select * from member where id = ?";
         List<Member> members;
         try {
-            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),id);
+            members = jdbcTemplate.query(sql, rowMapper,id);
         } catch (Exception e) {
             final String msg = "해당 id의 유저가 없습니다. [id:" + id + "]";
             log.warn(msg);
@@ -90,11 +93,11 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
-    public Member selectMemberByEmail(String email) {
+    public Member selectMemberByEmail(String email,RowMapper<Member> rowMapper) {
         String sql = "select * from member where email = ?";
         List<Member> members;
         try {
-            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+            members = jdbcTemplate.query(sql, rowMapper,email);
         } catch (Exception e) {
             final String msg = "해당 이메일의 유저가 없습니다. [email:" + email + "]";
             log.warn(msg);
@@ -166,13 +169,13 @@ public class JdbcMemberRepository implements MemberRepository{
     public List<Verification> getVerification(String email) {
         String sql = "SELECT * FROM memberVerification WHERE memberEmail = ?";
         List<Verification> verifications;
-        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>());
+        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>(),email);
         return verifications;
     }
 
     @Override
     public void insertVerification(String email, String verification) {
-        String sql = "INSERT memberVerification (email, verification)";
+        String sql = "INSERT into memberVerification (memberEmail, verification) values(?,?)";
         jdbcTemplate.update(sql, email, verification);
     }
 
@@ -183,9 +186,9 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
-    public void updateFcm(String email, String fcmToken) {
-        String sql = "UPDATE memberVerification set fcmToken = ? where memberEmail = ?";
-        jdbcTemplate.update(sql, fcmToken, email);
+    public void updateFcm(long memberId, String fcmToken) {
+        String sql = "UPDATE member set fcmToken = ? where id = ?";
+        jdbcTemplate.update(sql, fcmToken, memberId);
     }
 }
 
