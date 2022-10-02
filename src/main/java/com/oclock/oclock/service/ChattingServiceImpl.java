@@ -2,6 +2,7 @@ package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
+import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.repository.ChattingRepository;
@@ -34,32 +35,32 @@ public class ChattingServiceImpl implements ChattingService {
 
     @Override
     public BigInteger randomMatching(Member requestMember) {
-        ChattingRoom.ChattingRoomBuilder builder = ChattingRoom.builder();
-        builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
-        builder.member1(requestMember.getId());
+//        ChattingRoom.ChattingRoomBuilder builder = ChattingRoom.builder();
+//        builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
+//        builder.member1(requestMember.getId());
+//        List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
+//        int randomIndex = new Random().nextInt(2);
+//        Member member = randomMembers.get(randomIndex);
+//        builder.member2(member.getId());
+//        builder.chattingTime(member.getChattingTime()); // 요청한 사람의 채팅시간보다 커야 서로 시간이 겹친다. 겹치는 시간중 가장 빠른 시간은 상대의 채팅시간이다.
+//        ChattingRoom chattingRoom = builder.build();
+//        return chattingRepository.createChattingRoom(chattingRoom);
+        requestMember = memberRepository.selectMemberById(requestMember.getId());
         List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
-        int randomIndex = new Random().nextInt(2);
-        Member member = randomMembers.get(randomIndex);
-        builder.member2(member.getId());
-        builder.chattingTime(member.getChattingTime()); // 요청한 사람의 채팅시간보다 커야 서로 시간이 겹친다. 겹치는 시간중 가장 빠른 시간은 상대의 채팅시간이다.
-        ChattingRoom chattingRoom = builder.build();
-        return chattingRepository.createChattingRoom(chattingRoom);
-    }
-
-    @Override
-    public BigInteger matching(long requestMemberId, long guestMemberId) {
-        ChattingRoom.ChattingRoomBuilder builder = ChattingRoom.builder();
-        builder.member1(requestMemberId);
-        builder.member2(guestMemberId);
-        builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
-        Member guestMember = memberRepository.selectMemberById(guestMemberId);
-        builder.chattingTime(guestMember.getChattingTime());
-        return chattingRepository.createChattingRoom(builder.build());
-    }
-
-    @Override
-    public List<Long> getRandomMemberIdList(Member requestMember) {
-        return memberRepository.selectRandomMemberIds(requestMember);
+        if(randomMembers.isEmpty()){
+            throw new OClockException();
+        }else{
+//            int random = new Random().nextInt();
+//            random = random % (randomMembers.size()-1);
+//            Member selectedMember = randomMembers.get(random);
+            Member selectedMember = randomMembers.get(0);
+            int chattingTime = Math.max(requestMember.getChattingTime(), selectedMember.getChattingTime());
+            ChattingRoom chattingRoom = ChattingRoom.builder()
+                    .member1(requestMember.getId())
+                    .member2(selectedMember.getId())
+                    .chattingTime(chattingTime).build();
+            return chattingRepository.createChattingRoom(chattingRoom);
+        }
     }
 
     @Override
