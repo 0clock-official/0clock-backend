@@ -11,8 +11,10 @@ import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,9 +28,7 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("members")
 @Api(tags = "사용자 APIs")
-@AllArgsConstructor
 public class MemberRestController {
 
     private final AuthenticationManager authenticationManager;
@@ -49,6 +48,17 @@ public class MemberRestController {
     private final MemberService memberService;
 
     private final EmailService emailService;
+
+    public MemberRestController(AuthenticationManager authenticationManager, Jwt jwt, JwtAuthenticationProvider jwtProvider, MemberService memberService, EmailService emailService) {
+        this.authenticationManager = authenticationManager;
+        this.jwt = jwt;
+        this.jwtProvider = jwtProvider;
+        this.memberService = memberService;
+        this.emailService = emailService;
+    }
+
+    @Value("${uploadPath}")
+    private String uploadPath;
 
     //Test용 Get멤버. Member의 객체 정보만 반환해야함
 
@@ -126,7 +136,7 @@ public class MemberRestController {
 
     @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
-        String uploadFolder = "C:\\upload\\학생증\\" + studentCardDto.getEmail();
+        String uploadFolder = uploadPath + studentCardDto.getEmail();
         File uploadPath = new File(uploadFolder);
         if(uploadPath.exists() == false) {
             uploadPath.mkdirs();

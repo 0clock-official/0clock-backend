@@ -44,3 +44,4 @@ mail:
     mail:
       smtp: auth=true
       starttls: enable=true
+uploadPath: C:\upload\학생증\
