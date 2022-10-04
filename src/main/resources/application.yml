@@ -44,3 +44,4 @@ mail:
     mail:
       smtp: auth=true
       starttls: enable=true
+uploadPath: /Users/imsubin/Desktop/0clock

@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.RowMapper;
@@ -59,7 +61,18 @@ public class MemberRestController {
 
     private final ChattingService chattingService;
 
-    //Test용 Get멤버. Member의 객체 정보만 반환해야함
+    @Value("${uploadPath}")
+    private String uploadPath;
+    @Autowired
+    public MemberRestController(AuthenticationManager authenticationManager, Jwt jwt, JwtAuthenticationProvider jwtProvider, MemberService memberService, EmailService emailService, ChattingService chattingService) {
+        this.authenticationManager = authenticationManager;
+        this.jwt = jwt;
+        this.jwtProvider = jwtProvider;
+        this.memberService = memberService;
+        this.emailService = emailService;
+        this.chattingService = chattingService;
+    }
+//Test용 Get멤버. Member의 객체 정보만 반환해야함
 
     @GetMapping(path  = "getMembers")
     public ResponseEntity<ResponseDto> getMembers() {
@@ -137,15 +150,20 @@ public class MemberRestController {
 
     @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
-        String uploadFolder = "C:\\upload\\학생증\\" + studentCardDto.getEmail();
+        Member member = memberService.findByEmail(new Email(studentCardDto.getEmail()));
+        String uploadFolder = uploadPath;
         File uploadPath = new File(uploadFolder);
         if(uploadPath.exists() == false) {
             uploadPath.mkdirs();
         }
         uploadPath.createNewFile();
-
-        byte[] decodedBytes = Base64.getDecoder().decode(studentCardDto.getBase64img());
-        FileUtils.writeByteArrayToFile(new File(uploadFolder + "\\" + studentCardDto.getFileName()), decodedBytes);
+        LoggerFactory.getLogger(this.getClass()).info(studentCardDto.toString());
+        String img = studentCardDto.getIdCard();
+        String[] imgAndExp = img.split(",");
+        img = imgAndExp[1];
+        String fileType = imgAndExp[0].split("/")[1].split(";")[0];
+        byte[] decodedBytes = Base64.getDecoder().decode(img);
+        FileUtils.writeByteArrayToFile(new File(uploadFolder +File.separator+member.getId()+"."+fileType), decodedBytes);
 
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
