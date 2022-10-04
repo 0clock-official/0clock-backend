@@ -122,12 +122,12 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Override
     public List<Member> selectRandomMembers(Member requestMember) {
-        String sql = "select * from member where chattingRoomId is null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
+        String sql = "select * from member where chattingRoomId is null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? and id != ? order by rand() limit 0,3";
         if(requestMember.getMatchingSex() == Member.MatchingSex.ALL){
             sql = sql.replace(" and memberSex = ?","");
-            return jdbcTemplate.query(sql,new MemberRowMapperNoEmailAndChattingRoom<>(),requestMember.getChattingTime(),requestMember.getMemberSex(),requestMember.getMajor());
+            return jdbcTemplate.query(sql,new MemberRowMapper<>(),requestMember.getChattingTime(),requestMember.getMemberSex(),requestMember.getMajor(),requestMember.getId());
         }
-        return jdbcTemplate.query(sql,new MemberRowMapperNoEmailAndChattingRoom<>(),requestMember.getChattingTime(),requestMember.getMatchingSex(),requestMember.getMemberSex(),requestMember.getMajor());
+        return jdbcTemplate.query(sql,new MemberRowMapper<>(),requestMember.getChattingTime(),requestMember.getMatchingSex(),requestMember.getMemberSex(),requestMember.getMajor(),requestMember.getId());
     }
 
     @Override

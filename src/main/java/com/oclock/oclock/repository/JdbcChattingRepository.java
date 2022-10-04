@@ -6,6 +6,7 @@ import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.rowmapper.ChattingLogRowMapper;
 import com.oclock.oclock.rowmapper.ChattingRoomRowMapper;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,9 +49,27 @@ public class JdbcChattingRepository implements ChattingRepository{
 
     @Override
     public BigInteger createChattingRoom(ChattingRoom chattingRoom) {
+//        KeyHolder keyHolder = new GeneratedKeyHolder();
+//        String sql = "insert into chattingRoom(chattingTime,member1,member2) select ?,?,? from member where exists" +
+//                "(select * from member where id in (?,?) and chattingRoomId is null) limit 1"; // 현재 참여중인 채팅이 없어야만 가능.
+//        int chattingTime = chattingRoom.getChattingTime();
+//        long member1 = chattingRoom.getMember1();
+//        long member2 = chattingRoom.getMember2();
+//        jdbcTemplate.update(con -> {
+//            PreparedStatement preparedStatement = con.prepareStatement(sql, new String[]{"id"});
+//            preparedStatement.setInt(1,chattingTime);
+//            preparedStatement.setLong(2,member1);
+//            preparedStatement.setLong(3,member2);
+//            preparedStatement.setLong(4,member1);
+//            preparedStatement.setLong(5,member2);
+//            return preparedStatement;
+//        },keyHolder);
+//        long chattingRoomId = keyHolder.getKey().longValue();
+//        String sql2 = "update member set chattingRoomId = ? where id in (?,?)";
+//        jdbcTemplate.update(sql2,chattingRoomId,member1,member2);
+//        return BigInteger.valueOf(keyHolder.getKey().longValue());
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "insert into chattingRoom(chattingTime,member1,member2) select ?,?,? from member where exists" +
-                "(select * from member where id in (?,?) and chattingRoomId is null) limit 1"; // 현재 참여중인 채팅이 없어야만 가능.
+        String sql = "insert into chattingRoom(chattingTime,member1,member2) values(?,?,?)";
         int chattingTime = chattingRoom.getChattingTime();
         long member1 = chattingRoom.getMember1();
         long member2 = chattingRoom.getMember2();
@@ -59,8 +78,6 @@ public class JdbcChattingRepository implements ChattingRepository{
             preparedStatement.setInt(1,chattingTime);
             preparedStatement.setLong(2,member1);
             preparedStatement.setLong(3,member2);
-            preparedStatement.setLong(4,member1);
-            preparedStatement.setLong(5,member2);
             return preparedStatement;
         },keyHolder);
         long chattingRoomId = keyHolder.getKey().longValue();

@@ -25,9 +25,9 @@ import java.util.Random;
 public class ChattingServiceImpl implements ChattingService {
 
     @Autowired
-    private JdbcChattingRepository chattingRepository;
+    private ChattingRepository chattingRepository;
     @Autowired
-    private JdbcMemberRepository memberRepository;
+    private MemberRepository memberRepository;
     @Autowired
     private SecretTool secretTool;
     @Override
@@ -38,30 +38,18 @@ public class ChattingServiceImpl implements ChattingService {
 
     @Override
     public BigInteger randomMatching(Member requestMember) {
-//        ChattingRoom.ChattingRoomBuilder builder = ChattingRoom.builder();
-//        builder.createTime(Timestamp.valueOf(LocalDateTime.now()));
-//        builder.member1(requestMember.getId());
-//        List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
-//        int randomIndex = new Random().nextInt(2);
-//        Member member = randomMembers.get(randomIndex);
-//        builder.member2(member.getId());
-//        builder.chattingTime(member.getChattingTime()); // 요청한 사람의 채팅시간보다 커야 서로 시간이 겹친다. 겹치는 시간중 가장 빠른 시간은 상대의 채팅시간이다.
-//        ChattingRoom chattingRoom = builder.build();
-//        return chattingRepository.createChattingRoom(chattingRoom);
         requestMember = memberRepository.selectMemberById(requestMember.getId(),new MemberRowMapper<>());
         List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
-        if(randomMembers.isEmpty()){
-            throw new OClockException();
-        }else{
-//            int random = new Random().nextInt();
-//            random = random % (randomMembers.size()-1);
-//            Member selectedMember = randomMembers.get(random);
-            Member selectedMember = randomMembers.get(0);
-            int chattingTime = Math.max(requestMember.getChattingTime(), selectedMember.getChattingTime());
+        if (randomMembers.isEmpty())throw new OClockException();
+        else{
+            int random = new Random().nextInt(100000)+1;
+            random = random % randomMembers.size();
+            Member other = randomMembers.get(random);
             ChattingRoom chattingRoom = ChattingRoom.builder()
                     .member1(requestMember.getId())
-                    .member2(selectedMember.getId())
-                    .chattingTime(chattingTime).build();
+                    .member2(other.getId())
+                    .chattingTime(Math.max(requestMember.getChattingTime(),other.getChattingTime()))
+                    .build();
             return chattingRepository.createChattingRoom(chattingRoom);
         }
     }
