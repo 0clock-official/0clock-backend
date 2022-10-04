@@ -3,6 +3,7 @@ package com.oclock.oclock.controller;
 import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
+import com.oclock.oclock.dto.StudentCardDto;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
@@ -14,7 +15,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,9 +28,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -129,12 +135,21 @@ public class MemberRestController {
         return ResponseEntity.ok(ResponseDto.builder().response("fcm 토큰이 갱신되었습니다.").code("200").data("").build());
     }
 
-    @PostMapping(path = "join/studentCard") // ToDo 구현 필요
-    public ResponseEntity<?> updateEmailStudentCard(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> body) {
-        memberService.updateEmailStudentCard(body);
+    @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
+        String uploadFolder = "C:\\upload\\학생증\\" + studentCardDto.getEmail();
+        File uploadPath = new File(uploadFolder);
+        if(uploadPath.exists() == false) {
+            uploadPath.mkdirs();
+        }
+        uploadPath.createNewFile();
+
+        byte[] decodedBytes = Base64.getDecoder().decode(studentCardDto.getBase64img());
+        FileUtils.writeByteArrayToFile(new File(uploadFolder + "\\" + studentCardDto.getFileName()), decodedBytes);
+
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
-                .response("학생증 인증 성공")
+                .response("학생증 업로드 성공")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
@@ -214,8 +229,14 @@ public class MemberRestController {
 
     @DeleteMapping
     @ApiOperation(value = "회원탈퇴")
-    public ApiResult<Boolean> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
-        return OK(memberService.deleteAccount(authentication.id));
+    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal JwtAuthentication authentication) {
+        memberService.deleteAccount(authentication.id);
+        ResponseDto<String> response = ResponseDto.<String>builder()
+                .code("200")
+                .response("회원탈퇴 성공")
+                .data("")
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 
 

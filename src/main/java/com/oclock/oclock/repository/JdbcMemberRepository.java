@@ -190,5 +190,11 @@ public class JdbcMemberRepository implements MemberRepository{
         String sql = "UPDATE member set fcmToken = ? where id = ?";
         jdbcTemplate.update(sql, fcmToken, memberId);
     }
+
+    @Override
+    public void deleteAccount(Long id) {
+        String sql = "DELETE from member where id = ?";
+        jdbcTemplate.update(sql, id);
+    }
 }
 

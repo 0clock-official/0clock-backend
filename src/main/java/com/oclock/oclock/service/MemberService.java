@@ -29,7 +29,7 @@ public interface MemberService {
 
     Member findByEmail(Email email);
 
-    Boolean deleteAccount(Long id);
+    void deleteAccount(Long id);
     Member login(Email email, String password); // 로그인
     void updateMember(Member member); // 회원정보 수정
     void resetPassword(String email); // 비밀번호 리셋 요청
