@@ -117,8 +117,8 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public String createRandomCode() throws NoSuchAlgorithmException {
         SecureRandom secureRandom = SecureRandom.getInstance("NativePRNG");
-        int randomInt = secureRandom.nextInt(100000);
-        return Integer.toString(randomInt);
+        int randomInt = secureRandom.nextInt(999999);
+        return String.format("%06d", randomInt);
     }
 
     //TODO 회원정보 수정 
