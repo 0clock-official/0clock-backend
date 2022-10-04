@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +23,8 @@ import java.io.IOException;
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private DataSource dataSource;
+    @Value("${firebase}")
+    private String firebase;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -46,7 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
     public FirebaseApp firebaseApp() throws IOException {
 
         FileInputStream serviceAccount =
-                new FileInputStream("/Users/imsubin/Desktop/clock-9f828-firebase-adminsdk-4n8rl-c21b86c1bb.json");
+                new FileInputStream(firebase);
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
