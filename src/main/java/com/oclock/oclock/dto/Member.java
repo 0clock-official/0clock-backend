@@ -23,13 +23,14 @@ public class Member {
     @JsonIgnore
     private String password;
     @Setter
+    @JsonIgnore
     private BigInteger chattingRoomId;
     private int chattingTime;
     private int memberSex;
     private int matchingSex;
     private int major;
     private String nickName;
-
+    @JsonIgnore
     private int joinStep;
     @JsonIgnore
     private String fcmToken;

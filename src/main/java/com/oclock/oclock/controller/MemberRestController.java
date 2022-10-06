@@ -256,7 +256,19 @@ public class MemberRestController {
     @ApiOperation(value = "채팅하고있는 상대방 정보 조회")
     public ResponseEntity<?> other(@AuthenticationPrincipal JwtAuthentication authentication) {
         Member requestMember = memberService.findById(authentication.id,new MemberRowMapper<>());
-        Member other = chattingService.getChattingMember(requestMember);
+        Member other = null;
+        try {
+            other = chattingService.getChattingMember(requestMember);
+        } catch (IndexOutOfBoundsException e) {
+            e.getMessage();
+            ResponseDto<String> response = ResponseDto.<String>builder()
+                .code("409")
+                .response("상대방이 없습니다.")
+                .data("")
+                .build();
+            return ResponseEntity.status(409).body(response);
+
+        }
         ResponseDto<Member> response = ResponseDto.<Member>builder()
                 .code("200")
                 .response("상대방 정보 불러오기 성공")
