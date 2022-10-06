@@ -29,6 +29,8 @@ public class Member {
     private int matchingSex;
     private int major;
     private String nickName;
+
+    private int joinStep;
     @JsonIgnore
     private String fcmToken;
     @JsonIgnore
@@ -43,6 +45,7 @@ public class Member {
         this.matchingSex = member.getMatchingSex();
         this.major = member.getMajor();
         this.nickName = member.getNickName();
+        this.joinStep = member.getJoinStep();
         this.fcmToken = member.getFcmToken();
         this.useYn = member.getUseYn();
     }
@@ -65,7 +68,7 @@ public class Member {
         public static final int END = 6;
     }
 
-    public Member(long id, Email email, String password, BigInteger chattingRoomId, int chattingTime, int memberSex, int matchingSex, int major, String nickName, String fcmToken, char useYn) {
+    public Member(long id, Email email, String password, BigInteger chattingRoomId, int chattingTime, int memberSex, int matchingSex, int major, String nickName, int joinStep, String fcmToken, char useYn) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -75,6 +78,7 @@ public class Member {
         this.matchingSex = matchingSex;
         this.major = major;
         this.nickName = nickName;
+        this.joinStep = joinStep;
         this.fcmToken = fcmToken;
         this.useYn = useYn;
     }
@@ -87,7 +91,8 @@ public class Member {
                 .append("sex", memberSex)
                 .append("matchingSex", matchingSex)
                 .append("major", major)
-                .append("nickName", nickName).toString();
+                .append("nickName", nickName)
+                .append("joinStep", joinStep).toString();
     }
 
     public void login(PasswordEncoder passwordEncoder, String credentials) {
