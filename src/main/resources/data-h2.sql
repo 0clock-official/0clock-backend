@@ -20,13 +20,13 @@ INSERT INTO `matchingSex` VALUES
 (2,'female'),
 (3,'all');
 SET foreign_key_checks = 1;
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
-VALUES ('test@test.com','dasda',NULL,1,1,3,1,'test1');
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
-VALUES('test2@test.com','dasda',NULL,1,2,3,1,'test2');
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
-VALUES('test3@test.com','dasda',NULL,1,2,2,1,'test3');
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
-VALUES('test4@test.com','dasda',NULL,1,1,1,1,'test4');
-INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName)
-VALUES('test5@test.com','dasda',NULL,1,2,1,1,'test5');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep,fcmToken)
+VALUES ('test@test.com','dasda',NULL,1,1,3,1,'test1',6,'dnw_AZ3xR3C3fYaJWOzt5w:APA91bGxyx8wQYNGVxgFKxAuv1BqjxeFNuzBAnHHBlMIOYZjdmWPxRc57UPg9HxueODIS7uuvhytiI3kZH3U2NSfJ0Z2Ql9qNvryqMsiCOOZ9IbhCvnHwgybnQwzEh0ov817JLcXom_W');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep,fcmToken)
+VALUES('test2@test.com','dasda',NULL,1,2,3,1,'test2',6,'dnw_AZ3xR3C3fYaJWOzt5w:APA91bGxyx8wQYNGVxgFKxAuv1BqjxeFNuzBAnHHBlMIOYZjdmWPxRc57UPg9HxueODIS7uuvhytiI3kZH3U2NSfJ0Z2Ql9qNvryqMsiCOOZ9IbhCvnHwgybnQwzEh0ov817JLcXom_W');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep,fcmToken)
+VALUES('test3@test.com','dasda',NULL,1,2,2,1,'test3',6,'dnw_AZ3xR3C3fYaJWOzt5w:APA91bGxyx8wQYNGVxgFKxAuv1BqjxeFNuzBAnHHBlMIOYZjdmWPxRc57UPg9HxueODIS7uuvhytiI3kZH3U2NSfJ0Z2Ql9qNvryqMsiCOOZ9IbhCvnHwgybnQwzEh0ov817JLcXom_W');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep,fcmToken)
+VALUES('test4@test.com','dasda',NULL,1,1,1,1,'test4',6,'dnw_AZ3xR3C3fYaJWOzt5w:APA91bGxyx8wQYNGVxgFKxAuv1BqjxeFNuzBAnHHBlMIOYZjdmWPxRc57UPg9HxueODIS7uuvhytiI3kZH3U2NSfJ0Z2Ql9qNvryqMsiCOOZ9IbhCvnHwgybnQwzEh0ov817JLcXom_W');
+INSERT INTO member(email,password,chattingRoomId,chattingTime,memberSex,matchingSex,major,nickName,joinStep,fcmToken)
+VALUES('test5@test.com','dasda',NULL,1,2,1,1,'test5',6,'dnw_AZ3xR3C3fYaJWOzt5w:APA91bGxyx8wQYNGVxgFKxAuv1BqjxeFNuzBAnHHBlMIOYZjdmWPxRc57UPg9HxueODIS7uuvhytiI3kZH3U2NSfJ0Z2Ql9qNvryqMsiCOOZ9IbhCvnHwgybnQwzEh0ov817JLcXom_W');

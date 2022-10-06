@@ -1,22 +1,27 @@
 package com.oclock.oclock.controller;
 
+import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.dto.StudentCardDto;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
+import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.security.*;
+import com.oclock.oclock.service.ChattingService;
 import com.oclock.oclock.service.EmailService;
 import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -28,15 +33,20 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.oclock.oclock.dto.ApiResult.OK;
+
 @Slf4j
 @RestController
 @RequestMapping("members")
 @Api(tags = "사용자 APIs")
+@AllArgsConstructor
 public class MemberRestController {
 
     private final AuthenticationManager authenticationManager;
@@ -49,18 +59,20 @@ public class MemberRestController {
 
     private final EmailService emailService;
 
-    public MemberRestController(AuthenticationManager authenticationManager, Jwt jwt, JwtAuthenticationProvider jwtProvider, MemberService memberService, EmailService emailService) {
+    private final ChattingService chattingService;
+
+    @Value("${uploadPath}")
+    private String uploadPath;
+    @Autowired
+    public MemberRestController(AuthenticationManager authenticationManager, Jwt jwt, JwtAuthenticationProvider jwtProvider, MemberService memberService, EmailService emailService, ChattingService chattingService) {
         this.authenticationManager = authenticationManager;
         this.jwt = jwt;
         this.jwtProvider = jwtProvider;
         this.memberService = memberService;
         this.emailService = emailService;
+        this.chattingService = chattingService;
     }
-
-    @Value("${uploadPath}")
-    private String uploadPath;
-
-    //Test용 Get멤버. Member의 객체 정보만 반환해야함
+//Test용 Get멤버. Member의 객체 정보만 반환해야함
 
     @GetMapping(path  = "getMembers")
     public ResponseEntity<ResponseDto> getMembers() {
@@ -72,7 +84,7 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "email")
+    @PostMapping(path = "email") // 확인
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException, NoSuchAlgorithmException {
         String email = request.get("email");
         String verification = memberService.createRandomCode();
@@ -80,13 +92,13 @@ public class MemberRestController {
         emailService.sendVerificationHtmlMessage(new Email(email), verification);
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200 OK")
-                .response("")
+                .response("이메일로 인증코드가 전송되었습니다.")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "email/verification")
+    @PostMapping(path = "email/verification") //확인
     public ResponseEntity<?> checkVerification(@RequestBody Map<String, String> request) throws MessagingException {
         String email = request.get("email");
         if (memberService.checkVerification(email, request.get("code"))) {
@@ -119,7 +131,7 @@ public class MemberRestController {
 
             ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200 OK")
-                    .response("회원가입 성공")
+                    .response("")
                     .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.status(200).body(response);
@@ -129,22 +141,29 @@ public class MemberRestController {
     }
 
 
-    @PutMapping(path = "fcm")
-    public void refreshFcm(@RequestBody Map<String, String> body) {
-        memberService.updateFcm(body);
+    @PutMapping(path = "fcm") //확인
+    public ResponseEntity<ResponseDto> refreshFcm(@AuthenticationPrincipal  JwtAuthentication authentication, @RequestBody Map<String, String> body) {
+        String fcm = body.get("fcm");
+        memberService.updateFcm(authentication.id,fcm);
+        return ResponseEntity.ok(ResponseDto.builder().response("fcm 토큰이 갱신되었습니다.").code("200").data("").build());
     }
 
     @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
-        String uploadFolder = uploadPath + studentCardDto.getEmail();
+        Member member = memberService.findByEmail(new Email(studentCardDto.getEmail()));
+        String uploadFolder = uploadPath;
         File uploadPath = new File(uploadFolder);
         if(uploadPath.exists() == false) {
             uploadPath.mkdirs();
         }
         uploadPath.createNewFile();
-
-        byte[] decodedBytes = Base64.getDecoder().decode(studentCardDto.getBase64img());
-        FileUtils.writeByteArrayToFile(new File(uploadFolder + "\\" + studentCardDto.getFileName()), decodedBytes);
+        LoggerFactory.getLogger(this.getClass()).info(studentCardDto.toString());
+        String img = studentCardDto.getIdCard();
+        String[] imgAndExp = img.split(",");
+        img = imgAndExp[1];
+        String fileType = imgAndExp[0].split("/")[1].split(";")[0];
+        byte[] decodedBytes = Base64.getDecoder().decode(img);
+        FileUtils.writeByteArrayToFile(new File(uploadFolder +File.separator+member.getId()+"."+fileType), decodedBytes);
 
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
@@ -154,7 +173,7 @@ public class MemberRestController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping(path = "login")
+    @PostMapping(path = "login") // 확인
     @ApiOperation(value = "사용자 로그인 (API 토큰 필요없음)")
     public ResponseEntity<?> authentication(@RequestBody AuthenticationRequest authRequest) throws UnauthorizedException {
         try {
@@ -166,7 +185,7 @@ public class MemberRestController {
             memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
             ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200")
-                    .response("로그인 성공")
+                    .response("로그인 되었습니다.")
                     .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.ok().body(response);
@@ -175,42 +194,49 @@ public class MemberRestController {
         }
     }
 
-    @PostMapping(path = "{email}/passwordReset")
-    public ResponseEntity<?> resetPassword(@PathVariable("email") String email, @AuthenticationPrincipal JwtAuthentication authentication, @RequestBody Map<String, String> body) throws Exception {
+    @PostMapping(path = "passwordReset") // 미구현
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
         Member member = memberService.findByEmail(new Email(email));
-        if (member.getId() != authentication.id) throw new UnauthorizedException("Unauthorized access");
-        member.setPassword(body.get("password"));
-        if (member.getPassword() == null) throw new Exception("There is no password input");
-        memberService.resetPassword(member);
+        //Todo 이메일로 비밀번호 초기화 링크가 전송되어야 함.
         ResponseDto<?> response = ResponseDto.<String>builder()
                 .code("200")
-                .response("인증 성공")
+                .response("비밀번호 초기화 링크가 메일로 전송되었습니다.")
                 .data("")
                 .build();
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping
-    public ResponseEntity<?> editMyself(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody Map<String, String> body) {
-        memberService.editMyself(body , authentication.id);
-        return ResponseEntity.ok().body("");
+    @PutMapping // 확인
+    public ResponseEntity<ResponseDto> editMyself(@AuthenticationPrincipal  JwtAuthentication authentication,@RequestBody Map<String, String> body) {
+        memberService.editMyself(authentication.id,body);
+        return ResponseEntity.ok().body(ResponseDto.builder().response("개인정보 수정이 완료되었습니다.").code("200").data("").build());
     }
 
     @GetMapping(path = "self")
-    @ApiOperation(value = "자기 정보 불러오기")
-    public ResponseEntity<?> me(@AuthenticationPrincipal JwtAuthentication authentication) {
-        ResponseDto<?> response = ResponseDto.<Member>builder()
+    @ApiOperation(value = "자기 정보 불러오기") // 확인 Todo 응답에 불필요한 값 포함 안되게 수정 필요
+    public ResponseEntity<ResponseDto> me(@AuthenticationPrincipal  JwtAuthentication authentication) {
+        Member member = memberService.findById(authentication.id, (rs, rowNum) -> Member.builder()
+                .email(new Email(rs.getString("email")))
+                .nickName(rs.getString("nickName"))
+                .major(rs.getInt("major"))
+                .chattingTime(rs.getInt("chattingTime"))
+                .memberSex(rs.getInt("memberSex"))
+                .matchingSex(rs.getInt("matchingSex"))
+                .build());
+        ResponseDto<Member> dto = ResponseDto.<Member>builder()
                 .code("200")
-                .response("자기 정보 불러오기 성공")
-                .data(memberService.findById(authentication.id))
+                .response("개인정보 조회에 성공하였습니다.")
+                .data(member)
                 .build();
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(dto);
     }
 
-    @GetMapping(path = "other")
+    @GetMapping(path = "other") // 확인 Todo 응답에 불필요한 값 포함 안되게 수정 필요
     @ApiOperation(value = "채팅하고있는 상대방 정보 조회")
     public ResponseEntity<?> other(@AuthenticationPrincipal JwtAuthentication authentication) {
-        Member other = memberService.other(authentication.id);
+        Member requestMember = memberService.findById(authentication.id,new MemberRowMapper<>());
+        Member other = chattingService.getChattingMember(requestMember);
         ResponseDto<Member> response = ResponseDto.<Member>builder()
                 .code("200")
                 .response("상대방 정보 불러오기 성공")
@@ -230,4 +256,17 @@ public class MemberRestController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+
+
+
+//    @PostMapping(path = "join")
+//    @ApiOperation(value = "회원가입")
+//    public ApiResult<JoinResult> join(@RequestBody JoinRequest joinRequest) {
+//        Member member = memberService.join(new Email(joinRequest.getPrincipal()), joinRequest.getCredentials());
+//        String apiToken = member.newApiToken(jwt, new String[]{Role.USER.value()});
+//        return OK(
+//                new JoinResult(apiToken, member)
+//        );
+//    }
 }

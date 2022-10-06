@@ -1,5 +1,6 @@
 package com.oclock.oclock.service;
 
+import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.exception.NotFoundException;
@@ -7,7 +8,9 @@ import com.oclock.oclock.model.Email;
 import com.oclock.oclock.model.Verification;
 import com.oclock.oclock.repository.MemberRepository;
 import com.oclock.oclock.repository.RefreshTokenRepository;
+import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,19 +36,18 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void editMyself(Map<String, String> body, Long id) {
+    public void editMyself(long memberId,Map<String, String> body) {
         if (body.get("nickname") != null && body.get("nickname") != "") {
-            memberRepository.updateNickname(body.get("nickname"), id);
+            memberRepository.updateNickname(memberId,body.get("nickname"));
         }
         if (body.get("chattingTime") != null && body.get("chattingTime") != "") {
-            memberRepository.updateChattingTime(body.get("chattingTime"), id);
+            memberRepository.updateChattingTime(memberId,Integer.parseInt(body.get("chattingTime")));
         }
     }
 
     @Override
-    public void updateFcm(Map<String, String> body) {
-        Email email = new Email(body.get("email"));
-        memberRepository.updateFcm(email.getAddress(), body.get("fcmToken"));
+    public void updateFcm(long memberId,String fcmToken) {
+        memberRepository.updateFcm(memberId,fcmToken);
     }
     
     //TODO 학생증 업로드 구현하기
@@ -56,14 +58,15 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean checkEmail(Email email) {
-        return memberRepository.selectMemberByEmail(email.getAddress()) == null ? true : false;
+        RowMapper<Member> rowMapper = new MemberRowMapperNoEmailAndChattingRoom<>();
+        return memberRepository.selectMemberByEmail(email.getAddress(), rowMapper) == null;
     }
 
     @Override
-    public Member findById(Long id) {
+    public Member findById(Long id,RowMapper<Member> rowMapper) {
         checkArgument(id != null, "Id must be provided.");
 
-        return memberRepository.selectMemberById(id);
+        return memberRepository.selectMemberById(id,rowMapper);
     }
 
     @Override
@@ -94,11 +97,6 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member other(Long id) {
-        return memberRepository.selectMemberById(id);
-    }
-
-    @Override
     public boolean checkVerification(String email, String verification) {
         List<Verification> verifications = memberRepository.getVerification(email);
         if (verifications.size() != 1) return false;
@@ -108,7 +106,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void renewVerification(String email, String verification) {
         List<Verification> verifications = memberRepository.getVerification(email);
-        if (!verification.isEmpty()) {
+        if (!verifications.isEmpty()) {
             memberRepository.updateVerification(email, verification);
             return;
         }
@@ -118,16 +116,20 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public String createRandomCode() throws NoSuchAlgorithmException {
-        SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-        int randomInt = secureRandom.nextInt(100000);
-        return Integer.toString(randomInt);
+        SecureRandom secureRandom = SecureRandom.getInstance("NativePRNG");
+        int randomInt = secureRandom.nextInt(999999);
+        return String.format("%06d", randomInt);
     }
 
+    //TODO 회원정보 수정 
+    @Override
+    public void updateMember(Member member) {
 
+    }
     //TODO 패스워드 재설정
     @Override
-    public void resetPassword(Member member) {
-        memberRepository.addMemberPassword(member);
+    public void resetPassword(String email) {
+
     }
     @Override
     public void mergeToken(long id, String verification) {

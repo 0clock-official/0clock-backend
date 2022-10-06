@@ -11,7 +11,7 @@ public class MemberVerfiRowMapper<T extends Verification> implements RowMapper {
     @Override
     public T mapRow(ResultSet rs, int rowNum) throws SQLException {
         Verification.VerificationBuilder builder = Verification.builder();
-        builder.memberEmail(rs.getString("email"))
+        builder.memberEmail(rs.getString("memberEmail"))
                 .verification(rs.getString("verification"));
         return (T) builder.build();
     }

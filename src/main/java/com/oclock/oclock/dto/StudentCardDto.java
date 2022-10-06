@@ -7,14 +7,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Getter
 public class StudentCardDto {
     private String email;
-
-    private String fileName;
-    private String base64img;
+    private String idCard;
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append(email)
-                .append(base64img).toString();
+                .append(idCard).toString();
     }
 }
