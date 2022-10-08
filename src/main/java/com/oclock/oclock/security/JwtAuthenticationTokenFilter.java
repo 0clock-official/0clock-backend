@@ -1,5 +1,6 @@
 package com.oclock.oclock.security;
 
+import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,6 @@ import java.util.regex.Pattern;
 
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-
 
 public class JwtAuthenticationTokenFilter extends GenericFilterBean {
     private static final Pattern BEARER = Pattern.compile("^Bearer$", Pattern.CASE_INSENSITIVE);
@@ -65,11 +64,12 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
                     }
 
                     Long userKey = claims.userKey;
-
+                    log.debug(userKey.toString());
 
                     List<GrantedAuthority> authorities = obtainAuthorities(claims);
 
                     if (nonNull(userKey) && authorities.size() > 0) {
+                        log.debug(userKey.toString());
                         JwtAuthenticationToken authentication =
                                 new JwtAuthenticationToken(new JwtAuthentication(userKey), null, authorities);
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

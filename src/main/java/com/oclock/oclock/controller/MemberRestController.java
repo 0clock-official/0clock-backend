@@ -4,6 +4,7 @@ import com.oclock.oclock.dto.ApiResult;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
 import com.oclock.oclock.dto.StudentCardDto;
+import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
@@ -150,7 +151,26 @@ public class MemberRestController {
 
     @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
-        Member member = memberService.findByEmail(new Email(studentCardDto.getEmail()));
+        if (authentication == null) {
+            ResponseDto<?> response = ResponseDto.<String >builder()
+                .code("403")
+                .response("인증 토큰이 없습니다.")
+                .data("")
+                .build();
+            return ResponseEntity.status(403).body(response);
+        }
+        Member member = null;
+        try {
+            member = memberService.findByEmail(new Email(studentCardDto.getEmail()));
+        } catch (Exception e) {
+            e.getMessage();
+            ResponseDto<?> response = ResponseDto.<String >builder()
+                .code("400")
+                .response("이메일이 없거나 잘못된 형식 입니다.")
+                .data("")
+                .build();
+            return ResponseEntity.status(400).body(response);
+        }
         String uploadFolder = uploadPath;
         File uploadPath = new File(uploadFolder);
         if(uploadPath.exists() == false) {
@@ -236,7 +256,19 @@ public class MemberRestController {
     @ApiOperation(value = "채팅하고있는 상대방 정보 조회")
     public ResponseEntity<?> other(@AuthenticationPrincipal JwtAuthentication authentication) {
         Member requestMember = memberService.findById(authentication.id,new MemberRowMapper<>());
-        Member other = chattingService.getChattingMember(requestMember);
+        Member other = null;
+        try {
+            other = chattingService.getChattingMember(requestMember);
+        } catch (IndexOutOfBoundsException e) {
+            e.getMessage();
+            ResponseDto<String> response = ResponseDto.<String>builder()
+                .code("409")
+                .response("상대방이 없습니다.")
+                .data("")
+                .build();
+            return ResponseEntity.status(409).body(response);
+
+        }
         ResponseDto<Member> response = ResponseDto.<Member>builder()
                 .code("200")
                 .response("상대방 정보 불러오기 성공")
