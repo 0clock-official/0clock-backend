@@ -87,7 +87,14 @@ public class ChattingServiceImpl implements ChattingService {
 
     @Override
     public Member getChattingMember(Member requestMember) {
-        return chattingRepository.selectChattingMember(requestMember);
+        try {
+            return chattingRepository.selectChattingMember(requestMember);
+        }catch (IndexOutOfBoundsException e){
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(409)
+                    .message("참여중인 채팅방이 없습니다.").build();
+            throw new OClockException(errorMessage);
+        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: yeongink
+    active: imsubin
   application:
     name: oclock
   mvc:
@@ -30,7 +30,7 @@ spring:
       schema-locations: classpath:schema-h2.sql
       data-locations: classpath:data-h2.sql
 server:
-  port: 34216
+  port: 8080
 jwt:
   token:
     header: Authorization
