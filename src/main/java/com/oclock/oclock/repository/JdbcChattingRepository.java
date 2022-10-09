@@ -3,6 +3,7 @@ package com.oclock.oclock.repository;
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.rowmapper.ChattingLogRowMapper;
 import com.oclock.oclock.rowmapper.ChattingRoomRowMapper;
@@ -37,7 +38,10 @@ public class JdbcChattingRepository implements ChattingRepository{
             sql = "insert into chattingLog(chattingRoomId,sendMember,receiveMember,message) values(?,?,?,?)";
             jdbcTemplate.update(sql,chattingRoomId,senderId,receiveId,message);
         }else{
-            throw new OClockException();
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(500)
+                    .message("채팅 전송에 실패하였습니다.").build();
+            throw new OClockException(errorMessage);
         }
     }
 
@@ -49,25 +53,6 @@ public class JdbcChattingRepository implements ChattingRepository{
 
     @Override
     public BigInteger createChattingRoom(ChattingRoom chattingRoom) {
-//        KeyHolder keyHolder = new GeneratedKeyHolder();
-//        String sql = "insert into chattingRoom(chattingTime,member1,member2) select ?,?,? from member where exists" +
-//                "(select * from member where id in (?,?) and chattingRoomId is null) limit 1"; // 현재 참여중인 채팅이 없어야만 가능.
-//        int chattingTime = chattingRoom.getChattingTime();
-//        long member1 = chattingRoom.getMember1();
-//        long member2 = chattingRoom.getMember2();
-//        jdbcTemplate.update(con -> {
-//            PreparedStatement preparedStatement = con.prepareStatement(sql, new String[]{"id"});
-//            preparedStatement.setInt(1,chattingTime);
-//            preparedStatement.setLong(2,member1);
-//            preparedStatement.setLong(3,member2);
-//            preparedStatement.setLong(4,member1);
-//            preparedStatement.setLong(5,member2);
-//            return preparedStatement;
-//        },keyHolder);
-//        long chattingRoomId = keyHolder.getKey().longValue();
-//        String sql2 = "update member set chattingRoomId = ? where id in (?,?)";
-//        jdbcTemplate.update(sql2,chattingRoomId,member1,member2);
-//        return BigInteger.valueOf(keyHolder.getKey().longValue());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sql = "insert into chattingRoom(chattingTime,member1,member2) values(?,?,?)";
         int chattingTime = chattingRoom.getChattingTime();

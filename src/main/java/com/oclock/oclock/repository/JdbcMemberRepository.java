@@ -2,6 +2,7 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
+import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.error.ErrorCode;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
@@ -62,7 +63,10 @@ public class JdbcMemberRepository implements MemberRepository{
         String sql = "select count(*) from emailCode where email = ? and code = ?";
         int result = jdbcTemplate.query(sql,(rs,rowNum)-> rs.getInt(1),email,code).get(0);
         if(result!=1){
-            throw new OClockException();
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(401)
+                    .message("인증코드가 일치하지 않습니다.").build();
+            throw new OClockException(errorMessage);
         }
     }
 

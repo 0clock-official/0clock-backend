@@ -1,10 +1,10 @@
 package com.oclock.oclock.controller;
 
-import com.oclock.oclock.dto.ApiResult;
-import com.oclock.oclock.dto.Member;
-import com.oclock.oclock.dto.MemberDto;
-import com.oclock.oclock.dto.StudentCardDto;
-import com.oclock.oclock.exception.NotFoundException;
+import com.oclock.oclock.dto.*;
+import com.oclock.oclock.dto.response.ErrorMessage;
+import com.oclock.oclock.dto.response.OtherInfoDto;
+import com.oclock.oclock.dto.response.SelfInfoDto;
+import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -34,14 +33,10 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.oclock.oclock.dto.ApiResult.OK;
 
 @Slf4j
 @RestController
@@ -152,12 +147,10 @@ public class MemberRestController {
     @PostMapping(value = "join/studentCard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateEmailStudentCard(@AuthenticationPrincipal JwtAuthentication authentication, @RequestBody StudentCardDto studentCardDto) throws IOException {
         if (authentication == null) {
-            ResponseDto<?> response = ResponseDto.<String >builder()
-                .code("403")
-                .response("인증 토큰이 없습니다.")
-                .data("")
-                .build();
-            return ResponseEntity.status(403).body(response);
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(401)
+                    .message("인증코드가 없습니다.").build();
+            throw new OClockException(errorMessage);
         }
         Member member = null;
         try {
@@ -209,8 +202,12 @@ public class MemberRestController {
                     .data(new AuthenticationResult(jwtProvider.getAccessToken(), jwtProvider.getRefreshToken()))
                     .build();
             return ResponseEntity.ok().body(response);
-        } catch (AuthenticationException e) {
-            throw new UnauthorizedException(e.getMessage());
+        } catch (Exception e) {
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(401)
+                    .message("이메일이나 비밀번호가 잘못되었습니다.")
+                    .build();
+            throw new OClockException(errorMessage);
         }
     }
 
@@ -234,45 +231,28 @@ public class MemberRestController {
     }
 
     @GetMapping(path = "self")
-    @ApiOperation(value = "자기 정보 불러오기") // 확인 Todo 응답에 불필요한 값 포함 안되게 수정 필요
+    @ApiOperation(value = "자기 정보 불러오기") // 확인
     public ResponseEntity<ResponseDto> me(@AuthenticationPrincipal  JwtAuthentication authentication) {
-        Member member = memberService.findById(authentication.id, (rs, rowNum) -> Member.builder()
-                .email(new Email(rs.getString("email")))
-                .nickName(rs.getString("nickName"))
-                .major(rs.getInt("major"))
-                .chattingTime(rs.getInt("chattingTime"))
-                .memberSex(rs.getInt("memberSex"))
-                .matchingSex(rs.getInt("matchingSex"))
-                .build());
-        ResponseDto<Member> dto = ResponseDto.<Member>builder()
+        Member member = memberService.findById(authentication.id, new MemberRowMapper<>());
+        SelfInfoDto selfInfoDto = new SelfInfoDto(member);
+        ResponseDto<SelfInfoDto> dto = ResponseDto.<SelfInfoDto>builder()
                 .code("200")
                 .response("개인정보 조회에 성공하였습니다.")
-                .data(member)
+                .data(selfInfoDto)
                 .build();
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping(path = "other") // 확인 Todo 응답에 불필요한 값 포함 안되게 수정 필요
+    @GetMapping(path = "other") // 확인
     @ApiOperation(value = "채팅하고있는 상대방 정보 조회")
     public ResponseEntity<?> other(@AuthenticationPrincipal JwtAuthentication authentication) {
         Member requestMember = memberService.findById(authentication.id,new MemberRowMapper<>());
-        Member other = null;
-        try {
-            other = chattingService.getChattingMember(requestMember);
-        } catch (IndexOutOfBoundsException e) {
-            e.getMessage();
-            ResponseDto<String> response = ResponseDto.<String>builder()
-                .code("409")
-                .response("상대방이 없습니다.")
-                .data("")
-                .build();
-            return ResponseEntity.status(409).body(response);
-
-        }
-        ResponseDto<Member> response = ResponseDto.<Member>builder()
+        Member other = chattingService.getChattingMember(requestMember);
+        OtherInfoDto otherInfoDto = new OtherInfoDto(other);
+        ResponseDto<OtherInfoDto> response = ResponseDto.<OtherInfoDto>builder()
                 .code("200")
-                .response("상대방 정보 불러오기 성공")
-                .data(other)
+                .response("채팅 상대방 정보 조회에 성공하였습니다.")
+                .data(otherInfoDto)
                 .build();
         return ResponseEntity.ok().body(response);
     }
@@ -288,17 +268,4 @@ public class MemberRestController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
-
-
-
-
-//    @PostMapping(path = "join")
-//    @ApiOperation(value = "회원가입")
-//    public ApiResult<JoinResult> join(@RequestBody JoinRequest joinRequest) {
-//        Member member = memberService.join(new Email(joinRequest.getPrincipal()), joinRequest.getCredentials());
-//        String apiToken = member.newApiToken(jwt, new String[]{Role.USER.value()});
-//        return OK(
-//                new JoinResult(apiToken, member)
-//        );
-//    }
 }

@@ -4,6 +4,7 @@ import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
+import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.repository.ChattingRepository;
 import com.oclock.oclock.repository.JdbcChattingRepository;
@@ -40,8 +41,13 @@ public class ChattingServiceImpl implements ChattingService {
     public BigInteger randomMatching(Member requestMember) {
         requestMember = memberRepository.selectMemberById(requestMember.getId(),new MemberRowMapper<>());
         List<Member> randomMembers = memberRepository.selectRandomMembers(requestMember);
-        if (randomMembers.isEmpty())throw new OClockException();
-        else{
+        if (randomMembers.isEmpty()){
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .message("매칭가능한 회원이 없습니다.")
+                    .code(404)
+                    .build();
+            throw new OClockException(errorMessage);
+        }else{
             int random = new Random().nextInt(100000)+1;
             random = random % randomMembers.size();
             Member other = randomMembers.get(random);
@@ -72,13 +78,23 @@ public class ChattingServiceImpl implements ChattingService {
         }else if(chattingRoom.getMember2()==requestMemberId){
             return memberRepository.selectMemberById(chattingRoom.getMember1(),rowMapper);
         }else{
-            throw new OClockException();
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(401)
+                    .message("자신이 참여한 채팅방만 참여자 조회가 가능합니다.").build();
+            throw new OClockException(errorMessage);
         }
     }
 
     @Override
     public Member getChattingMember(Member requestMember) {
-        return chattingRepository.selectChattingMember(requestMember);
+        try {
+            return chattingRepository.selectChattingMember(requestMember);
+        }catch (IndexOutOfBoundsException e){
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(409)
+                    .message("참여중인 채팅방이 없습니다.").build();
+            throw new OClockException(errorMessage);
+        }
     }
 
     @Override
