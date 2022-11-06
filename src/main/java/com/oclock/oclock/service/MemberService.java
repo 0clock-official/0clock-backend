@@ -23,8 +23,6 @@ public interface MemberService {
     void updateFcm(long memberId,String fcmToken);
     void updateEmailStudentCard(Map<String, String> body);
 
-    boolean checkEmail(Email email);
-
     Member findById(Long id, RowMapper<Member> rowMapper);
 
     Member findByEmail(Email email);
@@ -34,9 +32,7 @@ public interface MemberService {
     void updateMember(Member member); // 회원정보 수정
     void resetPassword(String email); // 비밀번호 리셋 요청
 
-    List<Member> getMembers();
-
-    boolean checkVerification(String email, String verification);
+    void checkVerification(String email, String verification);
 
     void renewVerification(String email, String verification);
 

@@ -99,14 +99,7 @@ public class JdbcMemberRepository implements MemberRepository{
     @Override
     public Member selectMemberByEmail(String email,RowMapper<Member> rowMapper) {
         String sql = "select * from member where email = ?";
-        List<Member> members;
-        try {
-            members = jdbcTemplate.query(sql, rowMapper,email);
-        } catch (Exception e) {
-            final String msg = "해당 이메일의 유저가 없습니다. [email:" + email + "]";
-            log.warn(msg);
-            throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
-        }
+        List<Member> members = jdbcTemplate.query(sql, rowMapper,email);
         return members.get(0);
     }
 
