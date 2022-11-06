@@ -16,7 +16,6 @@ public class OClockExceptionHandler {
         if(e instanceof OClockException) {
             OClockException oClockException = (OClockException)e;
             ErrorMessage errorMessage = oClockException.getErrorMessage();
-            errorMessage.setRequestId(request.hashCode());
             return ResponseEntity.status(errorMessage.getCode()).body(errorMessage);
         }else{
             log.error(e.toString());
