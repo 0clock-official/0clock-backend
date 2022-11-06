@@ -68,17 +68,6 @@ public class MemberRestController {
         this.emailService = emailService;
         this.chattingService = chattingService;
     }
-//Test용 Get멤버. Member의 객체 정보만 반환해야함
-
-    @GetMapping(path  = "getMembers")
-    public ResponseEntity<ResponseDto> getMembers() {
-        List<Member> members = memberService.getMembers();
-        ResponseDto<String> response = ResponseDto.<String>builder()
-                .code("200 OK")
-                .response("멤버 불러오기")
-                .data(members.stream().map(Object::toString).collect(Collectors.joining(","))).build();
-        return ResponseEntity.ok().body(response);
-    }
 
     @PostMapping(path = "email") // 확인
     public ResponseEntity<?> sendEmail(@RequestBody Map<String, String> request) throws MessagingException, NoSuchAlgorithmException {
@@ -97,20 +86,13 @@ public class MemberRestController {
     @PostMapping(path = "email/verification") //확인
     public ResponseEntity<?> checkVerification(@RequestBody Map<String, String> request) throws MessagingException {
         String email = request.get("email");
-        if (memberService.checkVerification(email, request.get("code"))) {
-            ResponseDto<?> response = ResponseDto.<String>builder()
-                    .code("200 OK")
-                    .response("")
-                    .data("")
-                    .build();
-            return ResponseEntity.ok().body(response);
-        }
+        memberService.checkVerification(email, request.get("code"));
         ResponseDto<?> response = ResponseDto.<String>builder()
-                .code("401 Unauthorized")
-                .response("wrong code")
-                .data("")
+                .code("200")
+                .response("이메일 인증이 완료되었습니다.")
                 .build();
-        return ResponseEntity.status(401).body(response);
+        return ResponseEntity.ok().body(response);
+
     }
 
 
