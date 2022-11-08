@@ -34,6 +34,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'com.google.firebase:firebase-admin:9.0.0'
 	implementation 'commons-io:commons-io:2.8.0'
+	implementation 'com.googlecode.log4jdbc:log4jdbc:1.2'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
