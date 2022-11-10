@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: imsubin
+    active: yeongink
   application:
     name: oclock
   mvc:
@@ -53,3 +53,7 @@ log4jdbc:
   dump:
     sql:
       maxlinelength: 0
+
+
+
+
