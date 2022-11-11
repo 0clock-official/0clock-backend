@@ -56,14 +56,6 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter{
         return new PasswordEncoderTest();
     }
 
-
-//    @Bean
-//    public AccessDecisionManager accessDecisionManager() {
-//        List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
-//        decisionVoters.add(new WebExpressionVoter());
-//        return new UnanimousBased(decisionVoters);
-//    }
-
     public JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter() {
         return new JwtAuthenticationTokenFilter(jwtTokenConfigure.getHeader(), jwt);
     }
