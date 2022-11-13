@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework:spring-context-support'
 	implementation 'com.google.guava:guava:31.1-jre'
 	implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
@@ -35,7 +36,8 @@ dependencies {
 	implementation 'com.google.firebase:firebase-admin:9.0.0'
 	implementation 'commons-io:commons-io:2.8.0'
 	implementation 'com.googlecode.log4jdbc:log4jdbc:1.2'
-
+	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'  /* Log4JDBC */
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
