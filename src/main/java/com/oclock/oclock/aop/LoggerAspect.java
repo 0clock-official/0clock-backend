@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggerAspect {
 
-  @Around("execution(* com.oclock.oclock..*Controller.*(..)) || execution(* com.oclock.oclock...*Service.*(..)) || execution(* com.oclock.oclock.rowmapper..*Mapper.*(..))")
+  @Around("execution(* com.oclock.oclock..*Controller.*(..)) || execution(* com.oclock.oclock..*Service.*(..)) || execution(* com.oclock.oclock.rowmapper..*Mapper.*(..))")
   public Object printLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
     String name = joinPoint.getSignature().getDeclaringTypeName();
