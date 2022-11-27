@@ -1,7 +1,6 @@
 package com.oclock.oclock.config;
 
 import com.oclock.oclock.controller.websocket.ChattingHandler;
-import com.oclock.oclock.controller.websocket.TestChatHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
