@@ -2,13 +2,10 @@ package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
-import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.repository.ChattingRepository;
-import com.oclock.oclock.repository.JdbcChattingRepository;
-import com.oclock.oclock.repository.JdbcMemberRepository;
 import com.oclock.oclock.repository.MemberRepository;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
@@ -34,7 +31,14 @@ public class ChattingServiceImpl implements ChattingService {
     @Override
     public void sendMessage(ChattingLog message) {
         secretTool.encryptChatting(message);
-        chattingRepository.addChatting(message);
+        if(chattingRepository.canAddChatting(message)) {
+            chattingRepository.addChatting(message);
+        }else{
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .message("유효하지 않은 채팅입니다.")
+                    .code(400).build();
+            throw new OClockException(errorMessage);
+        }
     }
 
     @Override
@@ -56,7 +60,15 @@ public class ChattingServiceImpl implements ChattingService {
                     .member2(other.getId())
                     .chattingTime(Math.max(requestMember.getChattingTime(),other.getChattingTime()))
                     .build();
-            return chattingRepository.createChattingRoom(chattingRoom);
+            if(chattingRepository.canCreateChattingRoom(chattingRoom)){
+                return chattingRepository.createChattingRoom(chattingRoom);
+            }else {
+                ErrorMessage errorMessage = ErrorMessage.builder()
+                        .message("채팅방을 만들 수 없습니다")
+                        .code(409)
+                        .build();
+                throw new OClockException(errorMessage);
+            }
         }
     }
 
