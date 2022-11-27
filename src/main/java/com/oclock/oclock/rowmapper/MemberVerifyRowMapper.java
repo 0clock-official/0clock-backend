@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MemberVerfiRowMapper<T extends Verification> implements RowMapper {
+public class MemberVerifyRowMapper<T extends Verification> implements RowMapper {
 
     @Override
     public T mapRow(ResultSet rs, int rowNum) throws SQLException {
