@@ -4,13 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
 
 @Builder
 @Getter
 public class ErrorMessage {
-    @Builder.Default
-    private String requestId = UUID.randomUUID().toString();
+    @Setter
+    private String requestId;
     private int code;
     private String message;
 }
