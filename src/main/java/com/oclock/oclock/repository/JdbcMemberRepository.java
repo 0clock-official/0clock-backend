@@ -107,7 +107,7 @@ public class JdbcMemberRepository implements MemberRepository{
         String sql = "select * from member where email = ? and password = ?";
         List<Member> members;
         try {
-            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+            members = jdbcTemplate.query(sql, new MemberRowMapper<>(),email,password);
         } catch (Exception e) {
             final String msg = "해당 이메일과 비밀번호를 가진 유저가 없습니다. [email:" + email + "] [password:" + password;
             log.warn(msg);
