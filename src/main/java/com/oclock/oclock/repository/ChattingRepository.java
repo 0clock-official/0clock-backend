@@ -10,9 +10,13 @@ import java.util.List;
 
 public interface ChattingRepository {
     void addChatting(ChattingLog chat);
+    boolean canAddChatting(ChattingLog chattingLog);
     List<ChattingLog> selectChattingLogs(Member requestMember, ChattingRoom chattingRoom, Timestamp startTime, Timestamp endTime);
     BigInteger createChattingRoom(ChattingRoom chattingRoom);
+    boolean canCreateChattingRoom(ChattingRoom chattingRoom);
     void exitChattingRoom(Member member);
     Member selectChattingMember(Member requestMember);
     void updateChattingRoomTime(Member requestMember);
+    ChattingRoom selectChattingRoom(Member requestMember, BigInteger chattingRoomId);
+    ChattingRoom selectChattingRoom(Member requestMember);
 }

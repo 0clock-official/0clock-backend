@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: imsubin
+  application:
+    name: oclock
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    cache-duration: PT1H
+  datasource:
+    driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://localhost:3306/oclock?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+jwt:
+  token:
+    header: Authorization
+    issuer: oclock
+    clientSecret: Rel3Bjce2MajBo09qgkNgYaTuzvJe8iwnBFhsDS5
+    expirySeconds: 1
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: okeullag@gmail.com
+  password: hnnprmaxqweakwvg
+  properties:
+    mail:
+      smtp: auth=true
+      starttls: enable=true
+
+
+
+

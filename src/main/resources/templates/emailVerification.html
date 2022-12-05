@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">Template for HTML email with inline image</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>
+    오클락 이메일 인증 이메일입니다.
+</p>
+<p>이메일 인증번호는 </p>
+    <span th:text="${emailVerificationCode}">입니다.</span>
+<p>
+    Regards, <br />
+    <em>0clock-team</em>
+</p>
+</body>
+</html>

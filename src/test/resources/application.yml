@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: oclock
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  http:
+    encoding:
+      charset: UTF-8
+server:
+  tomcat:
+    uri-encoding: UTF-8
