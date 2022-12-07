@@ -25,10 +25,8 @@ public interface MemberRepository {
     Member selectMemberByEmail(String email,RowMapper<Member> rowMapper);
     Member selectMemberByEmailAndPassword(String email, String password);
     List<Member> selectRandomMembers(Member requestMember);
-    List<Long> selectRandomMemberIds(Member requestMember);
 
     Member findByEmail(Email email);
-    List<Member> getMembers();
 
     List<Verification> getVerification(String email);
 

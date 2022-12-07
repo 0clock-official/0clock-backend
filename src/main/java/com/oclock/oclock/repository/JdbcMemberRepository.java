@@ -10,7 +10,7 @@ import com.oclock.oclock.model.Email;
 import com.oclock.oclock.model.Verification;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
-import com.oclock.oclock.rowmapper.MemberVerfiRowMapper;
+import com.oclock.oclock.rowmapper.MemberVerifyRowMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,7 +18,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
@@ -108,7 +107,7 @@ public class JdbcMemberRepository implements MemberRepository{
         String sql = "select * from member where email = ? and password = ?";
         List<Member> members;
         try {
-            members = jdbcTemplate.query(sql, new MemberRowMapperNoEmailAndChattingRoom<Member>(),email);
+            members = jdbcTemplate.query(sql, new MemberRowMapper<>(),email,password);
         } catch (Exception e) {
             final String msg = "해당 이메일과 비밀번호를 가진 유저가 없습니다. [email:" + email + "] [password:" + password;
             log.warn(msg);
@@ -128,16 +127,6 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
-    public List<Long> selectRandomMemberIds(Member requestMember) {
-        String sql = "select id from member where chattingRoomId is null and chattingTime-? <=2 and memberSex = ? and (matchingSex = ? or matchingSex = 3) and major = ? order by rand() limit 0,3";
-        if(requestMember.getMatchingSex() == Member.MatchingSex.ALL){
-            sql = sql.replace(" and memberSex = ?","");
-            return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("id"), requestMember.getChattingTime(), requestMember.getMemberSex(), requestMember.getMajor());
-        }
-        return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getLong("id"),requestMember.getChattingTime(),requestMember.getMatchingSex(),requestMember.getMemberSex(),requestMember.getMajor());
-    }
-
-    @Override
     public Member findByEmail(Email email) {
         String sql = "SELECT * FROM member WHERE email=?";
         List<Member> members;
@@ -153,20 +142,10 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
-    public List<Member> getMembers() {
-        String sql = "SELECT * FROM member";
-        List<Member> members;
-
-        members = jdbcTemplate.query(sql, new MemberRowMapper<>());
-
-        return members;
-    }
-
-    @Override
     public List<Verification> getVerification(String email) {
         String sql = "SELECT * FROM memberVerification WHERE memberEmail = ?";
         List<Verification> verifications;
-        verifications = jdbcTemplate.query(sql, new MemberVerfiRowMapper<>(),email);
+        verifications = jdbcTemplate.query(sql, new MemberVerifyRowMapper<Verification>(),email);
         return verifications;
     }
 

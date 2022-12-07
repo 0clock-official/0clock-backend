@@ -3,15 +3,11 @@ package com.oclock.oclock.repository;
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
-import com.oclock.oclock.dto.response.ErrorMessage;
-import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.rowmapper.ChattingLogRowMapper;
 import com.oclock.oclock.rowmapper.ChattingRoomRowMapper;
-import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -27,22 +23,22 @@ public class JdbcChattingRepository implements ChattingRepository{
     public void addChatting(ChattingLog chat) {
         long senderId = chat.getSendMember();
         long receiveId = chat.getReceiveMember();
+        BigInteger chattingRoomId = chat.getChattingRoomId();
+        String message = chat.getMessage();
+        String sql = "insert into chattingLog(chattingRoomId,sendMember,receiveMember,message) values(?,?,?,?)";
+        jdbcTemplate.update(sql,chattingRoomId,senderId,receiveId,message);
+    }
+
+    @Override
+    public boolean canAddChatting(ChattingLog chattingLog) {
+        long senderId = chattingLog.getSendMember();
+        long receiveId = chattingLog.getReceiveMember();
         String sql = "select id from chattingRoom where member1 in (?,?) and member2 in (?,?) and deleteTime is null";
         BigInteger selectedChattingRoomId = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
             long number = rs.getLong(1);
             return BigInteger.valueOf(number);
         },senderId,receiveId,senderId,receiveId);
-        BigInteger chattingRoomId = chat.getChattingRoomId();
-        if(selectedChattingRoomId.equals(chattingRoomId)){
-            String message = chat.getMessage();
-            sql = "insert into chattingLog(chattingRoomId,sendMember,receiveMember,message) values(?,?,?,?)";
-            jdbcTemplate.update(sql,chattingRoomId,senderId,receiveId,message);
-        }else{
-            ErrorMessage errorMessage = ErrorMessage.builder()
-                    .code(500)
-                    .message("채팅 전송에 실패하였습니다.").build();
-            throw new OClockException(errorMessage);
-        }
+        return chattingLog.getChattingRoomId().equals(selectedChattingRoomId);
     }
 
     @Override
@@ -69,6 +65,18 @@ public class JdbcChattingRepository implements ChattingRepository{
         String sql2 = "update member set chattingRoomId = ? where id in (?,?)";
         jdbcTemplate.update(sql2,chattingRoomId,member1,member2);
         return BigInteger.valueOf(keyHolder.getKey().longValue());
+    }
+
+    @Override
+    public boolean canCreateChattingRoom(ChattingRoom chattingRoom) {
+        long member1 = chattingRoom.getMember1();
+        long member2 = chattingRoom.getMember2();
+        String sql = "select id from chattingRoom where (member1 in (?,?) or member2 in (?,?)) and deleteTime is null";
+        List<BigInteger> results = jdbcTemplate.query(sql,(rs, rowNum) -> {
+            long number = rs.getLong(1);
+            return BigInteger.valueOf(number);
+        },member1,member2,member1,member2);
+        return results.isEmpty();
     }
 
     @Override

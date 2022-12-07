@@ -111,7 +111,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member login(Email email, String password) {
         checkArgument(password != null, "password must be provided.");
-        Member member = findByEmail(email);
+        Member member = memberRepository.selectMemberByEmailAndPassword(email.getAddress(),password);
         member.login(passwordEncoder, password);
         return member;
     }

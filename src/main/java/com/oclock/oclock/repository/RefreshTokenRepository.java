@@ -17,13 +17,13 @@ public class RefreshTokenRepository {
     private JdbcTemplate jdbcTemplate;
 
     public List<RefreshToken> findByRefreshToken(String refreshToken) {
-        String sql = "SELECT * FROM refreshToken WHERE refresthToken = ?";
+        String sql = "SELECT * FROM refreshToken WHERE refreshToken = ?";
         return jdbcTemplate.query(sql, new RefreshTokenMapper<>(), refreshToken);
     }
 
     public boolean existsById(long id) {
         String sql = "SELECT * FROM refreshToken WHERE id=?";
-        return !jdbcTemplate.query(sql, new RefreshTokenMapper<>(), id).isEmpty();
+        return !jdbcTemplate.query(sql, (resultSet,rowNum) -> {return resultSet.getInt("id");}, id).isEmpty();
     }
 
     public int insertRefreshToken(long id, String refreshToken) {
@@ -32,7 +32,7 @@ public class RefreshTokenRepository {
     }
 
     public int updateRefreshToken(String refreshToken, long id) {
-        String sql = "UPDATE refreshToken set verification = ? where id = ?";
+        String sql = "UPDATE refreshToken set refreshToken = ? where id = ?";
         return jdbcTemplate.update(sql, refreshToken, id);
     }
 

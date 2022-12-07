@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: yeongink
+    active: imsubin
   application:
     name: oclock
   mvc:
@@ -13,8 +13,6 @@ spring:
   datasource:
     driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     url: jdbc:log4jdbc:mariadb://localhost:3306/oclock?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-server:
-  port: 8080
 jwt:
   token:
     header: Authorization

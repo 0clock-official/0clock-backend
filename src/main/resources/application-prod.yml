@@ -1,2 +1,24 @@
 uploadPath: /home/ec2-user/0clock/idCards/
 firebase: /home/ec2-user/0clock/firebase/clock-9f828-firebase-adminsdk-4n8rl-c21b86c1bb.json
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: "jdbc:h2:mem:oclock;MODE=MYSQL;DB_CLOSE_DELAY=-1"
+    username: sa
+    password:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 5
+      pool-name: H2_DB
+  sql:
+    init:
+      mode: always
+      platform: h2
+      schema-locations: classpath:schema-h2.sql
+      data-locations: classpath:data-h2.sql
+server:
+  port: 34216
