@@ -14,6 +14,7 @@ public class MemberRowMapper<T extends Member> implements RowMapper<T> {
     public T mapRow(ResultSet rs, int rowNum) throws SQLException {
         Member.MemberBuilder builder = Member.builder();
         builder.id(rs.getLong("id"))
+                .password(rs.getString("password"))
                 .memberSex(rs.getInt("memberSex"))
                 .major(rs.getInt("major"))
                 .chattingTime(rs.getInt("chattingTime"))

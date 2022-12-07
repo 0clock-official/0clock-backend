@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class JdbcMemberRepository implements MemberRepository{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Member join(MemberDto memberDto) {
@@ -72,7 +76,7 @@ public class JdbcMemberRepository implements MemberRepository{
     @Override
     public void addMemberPassword(Member member) {
         String sql = "update member set password = ? where email = ?";
-        jdbcTemplate.update(sql,member.getPassword(),member.getEmail());
+        jdbcTemplate.update(sql,member.getPassword(),member.getEmail().getAddress());
     }
 
     @Override
@@ -132,10 +136,18 @@ public class JdbcMemberRepository implements MemberRepository{
         List<Member> members;
         try {
             members = jdbcTemplate.query(sql, new MemberRowMapper(), email.getAddress());
-            log.info("The size of members is " + Integer.toString(members.size()));
+            if (members != null && !members.isEmpty()) {
+                Member member = members.get(0);
+                if (member.getPassword().length() < 20) {
+                    member.setPassword(passwordEncoder.encode(member.getPassword()));
+                    addMemberPassword(member);
+                    members = jdbcTemplate.query(sql, new MemberRowMapper(), email.getAddress());
+                }
+            }
         } catch (Exception e) {
+            e.printStackTrace();
             final String msg = "해당 이메일의 유저가 없습니다. [email:" + email.getAddress() + "]";
-            log.warn(msg);
+            log.debug(msg);
             throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
         }
         return members.get(0);
