@@ -14,34 +14,29 @@ import java.util.UUID;
 @Slf4j
 @Aspect
 @Component
-public class LoggerAspect {
+public class LoggerAspect { //Todo 웹소켓 통신시 작동하는 핸들러에도 동작하도록 수정 필요.
 
-  @Around("execution(* com.oclock.oclock..*Controller.*(..)) || execution(* com.oclock.oclock..*Service.*(..)) || execution(* com.oclock.oclock.repository..*Repository.*(..))")
-  public Object printLog(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("execution(* com.oclock.oclock..*Controller.*(..)) || execution(* com.oclock.oclock..*Service.*(..)) || execution(* com.oclock.oclock.repository..*Repository.*(..))")
+    public Object printLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
-    String name = joinPoint.getSignature().getDeclaringTypeName();
-    String type = "";
-    try {
-      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String name = joinPoint.getSignature().getDeclaringTypeName();
+        String type = "";
 
-      if (name.contains("Controller")) {
-        type = "Controller ===> ";
-        String uuid = UUID.randomUUID().toString();
-        request.setAttribute("uuid", uuid);
-        log.info("Request ===> uuid = " + uuid + " uri = " + request.getRequestURI());
-      } else if (name.contains("Service")) {
-        type = "ServiceImpl ===> ";
+        if (name.contains("Controller")) {
+            type = "Controller ===> ";
+            String uuid = UUID.randomUUID().toString();
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            request.setAttribute("uuid", uuid);
+            log.info("Request ===> uuid = " + uuid + " uri = " + request.getRequestURI());
+        } else if (name.contains("Service")) {
+            type = "ServiceImpl ===> ";
 
-      } else if (name.contains("Repository")) {
-        type = "Repository ===> ";
-      }
-    }catch (Exception e){
-//      e.printStackTrace();
-      return joinPoint.proceed();
+        } else if (name.contains("Repository")) {
+            type = "Repository ===> ";
+        }
+
+        log.info(type + name + "." + joinPoint.getSignature().getName() + "()");
+        return joinPoint.proceed();
     }
-
-    log.info(type + name + "." + joinPoint.getSignature().getName() + "()");
-    return joinPoint.proceed();
-  }
 
 }
