@@ -9,9 +9,11 @@ import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
+import com.oclock.oclock.security.Jwt;
 import com.oclock.oclock.service.ChattingService;
 import com.oclock.oclock.service.MemberService;
 import com.oclock.oclock.service.PushService;
+import com.oclock.oclock.utils.TokenToID;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,10 @@ public class ChattingHandler extends TextWebSocketHandler {
     private MemberService memberService;
     @Autowired
     private PushService pushService;
+
+    @Autowired
+    private Jwt jwt;
+
     private static final Map<Long,WebSocketSession> memberIdSessionMap = new HashMap<>();
     private static final ObjectMapper mapper = new ObjectMapper();
     @Override
@@ -48,7 +54,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         Map<String,String> textMap = mapper.readValue(text, new TypeReference<>() {});
         String accessToken = textMap.get("Authorization");
         String chattingMessage = textMap.get("message");
-        long memberId = 1l; // Todo 토큰으로부터 멤버 아이디 추출 작업 필요
+        long memberId = new TokenToID().getIdFromAccessToken(accessToken,jwt); // Todo 토큰으로부터 멤버 아이디 추출 시 유효기간 검증 필요.
         Member requestMember = memberService.findById(memberId,new MemberRowMapper<>());
         ChattingRoom chattingRoom = chattingService.getChattingRoom(requestMember);
         long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();

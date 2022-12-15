@@ -21,19 +21,23 @@ public class LoggerAspect {
 
     String name = joinPoint.getSignature().getDeclaringTypeName();
     String type = "";
+    try {
+      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+      if (name.contains("Controller")) {
+        type = "Controller ===> ";
+        String uuid = UUID.randomUUID().toString();
+        request.setAttribute("uuid", uuid);
+        log.info("Request ===> uuid = " + uuid + " uri = " + request.getRequestURI());
+      } else if (name.contains("Service")) {
+        type = "ServiceImpl ===> ";
 
-    if (name.contains("Controller")) {
-      type = "Controller ===> ";
-      String uuid = UUID.randomUUID().toString();
-      request.setAttribute("uuid",uuid);
-      log.info("Request ===> uuid = "+uuid+" uri = "+request.getRequestURI());
-    } else if (name.contains("Service")) {
-      type = "ServiceImpl ===> ";
-
-    } else if (name.contains("Repository")) {
-      type = "Repository ===> ";
+      } else if (name.contains("Repository")) {
+        type = "Repository ===> ";
+      }
+    }catch (Exception e){
+//      e.printStackTrace();
+      return joinPoint.proceed();
     }
 
     log.info(type + name + "." + joinPoint.getSignature().getName() + "()");
