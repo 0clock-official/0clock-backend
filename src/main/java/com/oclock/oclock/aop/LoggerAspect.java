@@ -16,7 +16,8 @@ import java.util.UUID;
 @Component
 public class LoggerAspect { //Todo 웹소켓 통신시 작동하는 핸들러에도 동작하도록 수정 필요.
 
-    @Around("execution(* com.oclock.oclock..*Controller.*(..)) || execution(* com.oclock.oclock..*Service.*(..)) || execution(* com.oclock.oclock.repository..*Repository.*(..))")
+    @Around("execution(* com.oclock.oclock..*Controller.*(..)) || execution(* com.oclock.oclock.controller.websocket.*.*(..)) " +
+            "|| execution(* com.oclock.oclock..*Service.*(..)) || execution(* com.oclock.oclock.repository..*Repository.*(..))")
     public Object printLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
         String name = joinPoint.getSignature().getDeclaringTypeName();
@@ -33,6 +34,8 @@ public class LoggerAspect { //Todo 웹소켓 통신시 작동하는 핸들러에
 
         } else if (name.contains("Repository")) {
             type = "Repository ===> ";
+        } else {
+            type = "ChattingHandler ===> ";
         }
 
         log.info(type + name + "." + joinPoint.getSignature().getName() + "()");
