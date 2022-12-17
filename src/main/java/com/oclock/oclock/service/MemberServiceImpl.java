@@ -34,7 +34,14 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member join(MemberDto memberDto) {
-        return memberRepository.join(memberDto);
+        if(memberRepository.checkVerification(memberDto.getEmail())) {
+            return memberRepository.join(memberDto);
+        }else {
+            ErrorMessage errorMessage = ErrorMessage.builder()
+                    .code(401)
+                    .message("인증 되지 않은 이메일 입니다.").build();
+            throw new OClockException(errorMessage);
+        }
     }
 
     @Override
@@ -119,8 +126,8 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void checkVerification(String email, String verification) {
         List<Verification> verifications = memberRepository.getVerification(email);
-        if(verifications.size() == 1 && !verifications.get(0).getVerification().equals(verification)){
-
+        if(verifications.size() == 1 && verifications.get(0).getVerification().contentEquals(verification)){
+            memberRepository.certVerification(email);
         }else{
             ErrorMessage errorMessage = ErrorMessage.builder()
                     .message("이메일 인증에 실패하였습니다.")

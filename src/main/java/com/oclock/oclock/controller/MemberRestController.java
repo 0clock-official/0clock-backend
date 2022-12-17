@@ -106,7 +106,6 @@ public class MemberRestController {
             Member member = memberService.findByEmail(new Email(memberDto.getEmail()));
 
             memberService.mergeToken(member.getId(), jwtProvider.getRefreshToken());
-            chattingService.randomMatching(member);
             ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
                     .code("200 OK")
                     .response("")
