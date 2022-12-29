@@ -1,6 +1,7 @@
 spring:
   profiles:
-    active: yeongink
+    active: imsubin
+    include : secret
   application:
     name: oclock
   mvc:
