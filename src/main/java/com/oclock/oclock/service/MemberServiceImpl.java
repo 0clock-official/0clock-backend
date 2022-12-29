@@ -201,6 +201,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean checkIdCard(Email email) {
-        return false;
+        int isCert = memberRepository.checkJoinStep(email.getAddress());
+        return isCert != 0;
     }
 }

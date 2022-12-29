@@ -226,4 +226,16 @@ public class MemberRestController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("join/studentCard/cert")
+    @ApiOperation(value = "학생증 인증 여부 확인")
+    public ResponseEntity<?> isCertIdCard(@AuthenticationPrincipal JwtAuthentication authentication){
+        Member member = memberService.findById(authentication.id,new MemberRowMapper<>());
+        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+                .data(memberService.checkIdCard(member.getEmail()))
+                .code("200")
+                .response("학생증 인증 여부 확인 성공")
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

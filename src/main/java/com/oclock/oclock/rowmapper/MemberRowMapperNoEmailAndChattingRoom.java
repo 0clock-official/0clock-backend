@@ -18,7 +18,7 @@ public class MemberRowMapperNoEmailAndChattingRoom<T extends Member> implements 
                 .chattingTime(rs.getInt("chattingTime"))
                 .nickName(rs.getString("nickName"))
                 .matchingSex(rs.getInt("matchingSex"))
-                .joinStep(rs.getInt("joinStep"))
+                .joinStep(rs.getInt("isCert"))
                 .fcmToken(rs.getString("fcmToken"))
                 .chattingRoomId(BigInteger.valueOf(rs.getLong("chattingRoomId")));
         return (T) builder.build();
