@@ -133,31 +133,8 @@ public class MemberRestController {
                     .message("인증코드가 없습니다.").build();
             throw new OClockException(errorMessage);
         }
-        Member member = null;
-        try {
-            member = memberService.findByEmail(new Email(studentCardDto.getEmail()));
-        } catch (Exception e) {
-            e.getMessage();
-            ResponseDto<?> response = ResponseDto.<String >builder()
-                .code("400")
-                .response("이메일이 없거나 잘못된 형식 입니다.")
-                .data("")
-                .build();
-            return ResponseEntity.status(400).body(response);
-        }
-        String uploadFolder = uploadPath;
-        File uploadPath = new File(uploadFolder);
-        if(uploadPath.exists() == false) {
-            uploadPath.mkdirs();
-        }
-        uploadPath.createNewFile();
-        LoggerFactory.getLogger(this.getClass()).info(studentCardDto.toString());
-        String img = studentCardDto.getIdCard();
-        String[] imgAndExp = img.split(",");
-        img = imgAndExp[1];
-        String fileType = imgAndExp[0].split("/")[1].split(";")[0];
-        byte[] decodedBytes = Base64.getDecoder().decode(img);
-        FileUtils.writeByteArrayToFile(new File(uploadFolder +File.separator+member.getId()+"."+fileType), decodedBytes);
+        Member member = memberService.findByEmail(new Email(studentCardDto.getEmail()));
+        memberService.updateEmailStudentCard(studentCardDto,member);
 
         ResponseDto<?> response = ResponseDto.<String >builder()
                 .code("200")
@@ -246,6 +223,18 @@ public class MemberRestController {
                 .code("200")
                 .response("회원탈퇴 성공")
                 .data("")
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("join/studentCard/cert")
+    @ApiOperation(value = "학생증 인증 여부 확인")
+    public ResponseEntity<?> isCertIdCard(@AuthenticationPrincipal JwtAuthentication authentication){
+        Member member = memberService.findById(authentication.id,new MemberRowMapper<>());
+        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+                .data(memberService.checkIdCard(member.getEmail()))
+                .code("200")
+                .response("학생증 인증 여부 확인 성공")
                 .build();
         return ResponseEntity.ok().body(response);
     }

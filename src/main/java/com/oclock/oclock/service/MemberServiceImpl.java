@@ -3,6 +3,7 @@ package com.oclock.oclock.service;
 import com.oclock.oclock.dto.ChattingRoom;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.MemberDto;
+import com.oclock.oclock.dto.StudentCardDto;
 import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.exception.NotFoundException;
 import com.oclock.oclock.exception.OClockException;
@@ -12,13 +13,18 @@ import com.oclock.oclock.repository.MemberRepository;
 import com.oclock.oclock.repository.RefreshTokenRepository;
 import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +33,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+    @Value("${uploadPath}")
+    private String uploadPath;
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
@@ -77,8 +85,20 @@ public class MemberServiceImpl implements MemberService {
     
     //TODO 학생증 업로드 구현하기
     @Override
-    public void updateEmailStudentCard(Map<String, String> body) {
-
+    public void updateEmailStudentCard(StudentCardDto studentCardDto,Member member) throws IOException {
+        String uploadFolder = uploadPath;
+        File uploadPath = new File(uploadFolder);
+        if(uploadPath.exists() == false) {
+            uploadPath.mkdirs();
+        }
+        uploadPath.createNewFile();
+        LoggerFactory.getLogger(this.getClass()).info(studentCardDto.toString());
+        String img = studentCardDto.getIdCard();
+        String[] imgAndExp = img.split(",");
+        img = imgAndExp[1];
+        String fileType = imgAndExp[0].split("/")[1].split(";")[0];
+        byte[] decodedBytes = Base64.getDecoder().decode(img);
+        FileUtils.writeByteArrayToFile(new File(uploadFolder +File.separator+member.getId()+"."+fileType), decodedBytes);
     }
 
     @Override
@@ -177,5 +197,11 @@ public class MemberServiceImpl implements MemberService {
             refreshTokenRepository.updateRefreshToken(verification, id);
         }
         else refreshTokenRepository.insertRefreshToken(id,verification);
+    }
+
+    @Override
+    public boolean checkIdCard(Email email) {
+        int isCert = memberRepository.checkJoinStep(email.getAddress());
+        return isCert != 0;
     }
 }

@@ -41,6 +41,7 @@ application.properties
 
 ### secretCodes ###
 src/main/java/com/oclock/oclock/secret/**
+application-secret.yml
 
 ### Max OS ###
 **/.DS_Store

@@ -2,6 +2,7 @@ package com.oclock.oclock.config;
 
 import com.oclock.oclock.security.Jwt;
 import com.oclock.oclock.utils.MessageUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,8 @@ import java.util.Properties;
 
 @Configuration
 public class ServiceConfigure {
+    @Value("${mailKey}")
+    private String mailKey;
     @Bean
     public Jwt jwt(JwtTokenConfigure jwtTokenConfigure) {
         return new Jwt(jwtTokenConfigure.getIssuer(), jwtTokenConfigure.getClientSecret(), jwtTokenConfigure.getExpirySeconds());
@@ -32,7 +35,7 @@ public class ServiceConfigure {
         mailSender.setPort(587);
 
         mailSender.setUsername("okeullag@gmail.com");
-        mailSender.setPassword("hnnprmaxqweakwvg");
+        mailSender.setPassword(mailKey);
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
