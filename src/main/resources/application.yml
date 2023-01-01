@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: imsubin
+    active: prod
     include : secret
   application:
     name: oclock

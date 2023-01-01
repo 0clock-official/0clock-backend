@@ -42,5 +42,5 @@ public interface MemberService {
 
     void mergeToken(long id, String verification);
 
-    boolean checkIdCard(Email email);
+    int checkIdCard(Email email);
 }

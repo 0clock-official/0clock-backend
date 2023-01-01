@@ -14,6 +14,7 @@ import com.oclock.oclock.service.EmailService;
 import com.oclock.oclock.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -231,7 +232,7 @@ public class MemberRestController {
     @ApiOperation(value = "학생증 인증 여부 확인")
     public ResponseEntity<?> isCertIdCard(@AuthenticationPrincipal JwtAuthentication authentication){
         Member member = memberService.findById(authentication.id,new MemberRowMapper<>());
-        ResponseDto<Boolean> response = ResponseDto.<Boolean>builder()
+        ResponseDto<Integer> response = ResponseDto.<Integer>builder()
                 .data(memberService.checkIdCard(member.getEmail()))
                 .code("200")
                 .response("학생증 인증 여부 확인 성공")

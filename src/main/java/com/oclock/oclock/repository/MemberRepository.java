@@ -41,4 +41,6 @@ public interface MemberRepository {
     void updateFcm(long memberId, String fcmToken);
 
     void deleteAccount(Long id);
+
+    void updateStudentCardState(long memberId, int state);
 }
