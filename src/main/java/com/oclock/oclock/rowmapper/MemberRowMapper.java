@@ -22,6 +22,7 @@ public class MemberRowMapper<T extends Member> implements RowMapper<T> {
                 .email(new Email(rs.getString("email")))
                 .matchingSex(rs.getInt("matchingSex"))
                 .fcmToken(rs.getString("fcmToken"))
+                .joinStep(rs.getInt("isCert"))
                 .chattingRoomId(BigInteger.valueOf(rs.getLong("chattingRoomId")));
         return (T) builder.build();
     }
