@@ -222,5 +222,11 @@ public class JdbcMemberRepository implements MemberRepository{
         String sql = "DELETE from member where id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public void updateStudentCardState(long memberId,int state) {
+        String sql = "update member set isCert = ? where id = ?";
+        jdbcTemplate.update(sql,state,memberId);
+    }
 }
 

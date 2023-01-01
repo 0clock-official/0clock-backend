@@ -66,7 +66,7 @@ CREATE TABLE `member` (
   `matchingSex` tinyint(4) unsigned NOT NULL,
   `major` int(11) unsigned NOT NULL,
   `nickName` varchar(64) NOT NULL DEFAULT '',
-  `isCert` tinyint(1) DEFAULT 1,
+  `isCert` tinyint(1) DEFAULT 2,
   `fcmToken` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),

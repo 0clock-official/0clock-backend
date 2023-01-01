@@ -99,6 +99,8 @@ public class MemberServiceImpl implements MemberService {
         String fileType = imgAndExp[0].split("/")[1].split(";")[0];
         byte[] decodedBytes = Base64.getDecoder().decode(img);
         FileUtils.writeByteArrayToFile(new File(uploadFolder +File.separator+member.getId()+"."+fileType), decodedBytes);
+
+        memberRepository.updateStudentCardState(member.getId(),1);
     }
 
     @Override
@@ -200,8 +202,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public boolean checkIdCard(Email email) {
+    public int checkIdCard(Email email) {
         int isCert = memberRepository.checkJoinStep(email.getAddress());
-        return isCert != 0;
+        return isCert;
     }
 }
