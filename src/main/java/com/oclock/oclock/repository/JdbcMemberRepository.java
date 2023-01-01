@@ -13,8 +13,11 @@ import com.oclock.oclock.rowmapper.MemberRowMapperNoEmailAndChattingRoom;
 import com.oclock.oclock.rowmapper.MemberVerifyRowMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,10 +30,37 @@ public class JdbcMemberRepository implements MemberRepository{
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public Member join(MemberDto memberDto) {
         String sql = "insert into member (email, password, nickname, major, chattingTime, memberSex,matchingSex, fcmToken) values(?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, memberDto.getEmail(), memberDto. getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getMemberSex(),memberDto.getMatchingSex(), memberDto.getFcmToken());
+        try {
+            jdbcTemplate.update(sql, memberDto.getEmail(), memberDto.getPassword(), memberDto.getNickname(), memberDto.getMajor(), memberDto.getChattingTime(), memberDto.getMemberSex(), memberDto.getMatchingSex(), memberDto.getFcmToken());
+        }catch (DataAccessException e){
+            String errMsg = e.getMessage();
+            ErrorMessage errorMessage;
+            if(e instanceof DuplicateKeyException){
+                errorMessage = ErrorMessage.builder()
+                        .code(409)
+                        .message("이미 가입된 이메일 입니다.").build();
+            }else if(errMsg.contains("MEMBER_IBFK_EMAIL")){
+                errorMessage = ErrorMessage.builder()
+                        .code(401)
+                        .message("인증 되지 않은 이메일 입니다.").build();
+            }else if(errMsg.contains("MEMBER_IBFK_")){
+                int index = errMsg.indexOf("MEMBER_IBFK_");
+                errMsg = errMsg.substring(index);
+                errMsg = errMsg.split(":")[0].split("_")[2];
+                errorMessage = ErrorMessage.builder()
+                        .code(400)
+                        .message(errMsg+"이(가) 유효하지 않습니다.").build();
+            }else {
+                throw e;
+            }
+            throw new OClockException(errorMessage);
+        }
         return selectMemberByEmail(memberDto.getEmail(),new MemberRowMapper<>());
     }
 
@@ -72,7 +102,7 @@ public class JdbcMemberRepository implements MemberRepository{
     @Override
     public void addMemberPassword(Member member) {
         String sql = "update member set password = ? where email = ?";
-        jdbcTemplate.update(sql,member.getPassword(),member.getEmail());
+        jdbcTemplate.update(sql,member.getPassword(),member.getEmail().getAddress());
     }
 
     @Override
@@ -132,10 +162,18 @@ public class JdbcMemberRepository implements MemberRepository{
         List<Member> members;
         try {
             members = jdbcTemplate.query(sql, new MemberRowMapper(), email.getAddress());
-            log.info("The size of members is " + Integer.toString(members.size()));
+            if (members != null && !members.isEmpty()) {
+                Member member = members.get(0);
+                if (member.getPassword().length() < 20) {
+                    member.setPassword(passwordEncoder.encode(member.getPassword()));
+                    addMemberPassword(member);
+                    members = jdbcTemplate.query(sql, new MemberRowMapper(), email.getAddress());
+                }
+            }
         } catch (Exception e) {
+            e.printStackTrace();
             final String msg = "해당 이메일의 유저가 없습니다. [email:" + email.getAddress() + "]";
-            log.warn(msg);
+            log.debug(msg);
             throw new NotFoundException(msg, ErrorCode.NOT_FOUND);
         }
         return members.get(0);
@@ -162,6 +200,18 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
+    public void certVerification(String email) {
+        String sql = "UPDATE memberVerification set cert = true where memberEmail = ?";
+        jdbcTemplate.update(sql, email);
+    }
+
+    @Override
+    public boolean checkVerification(String email) {
+        String sql = "SELECT cert FROM memberVerification WHERE memberEmail = ?";
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class,email));
+    }
+
+    @Override
     public void updateFcm(long memberId, String fcmToken) {
         String sql = "UPDATE member set fcmToken = ? where id = ?";
         jdbcTemplate.update(sql, fcmToken, memberId);
@@ -171,6 +221,12 @@ public class JdbcMemberRepository implements MemberRepository{
     public void deleteAccount(Long id) {
         String sql = "DELETE from member where id = ?";
         jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public void updateStudentCardState(long memberId,int state) {
+        String sql = "update member set isCert = ? where id = ?";
+        jdbcTemplate.update(sql,state,memberId);
     }
 }
 

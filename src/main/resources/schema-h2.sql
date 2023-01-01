@@ -35,11 +35,6 @@ CREATE TABLE `chattingRoom` (
   KEY `member2` (`member2`),
   CONSTRAINT `chattingroom_ibfk_1` FOREIGN KEY (`chattingTime`) REFERENCES `chattingTime` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-CREATE TABLE `emailCode` (
-  `email` varchar(320) NOT NULL DEFAULT '',
-  `code` int(11) NOT NULL,
-  PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `major` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `value` varchar(64) NOT NULL DEFAULT '',
@@ -55,6 +50,12 @@ CREATE TABLE `memberSex` (
   `value` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `memberVerification` (
+  `memberEmail` varchar(320),
+  `verification` varchar(30),
+  `cert` boolean default false,
+  PRIMARY KEY (`memberEmail`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 CREATE TABLE `member` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(320) NOT NULL DEFAULT '',
@@ -65,7 +66,7 @@ CREATE TABLE `member` (
   `matchingSex` tinyint(4) unsigned NOT NULL,
   `major` int(11) unsigned NOT NULL,
   `nickName` varchar(64) NOT NULL DEFAULT '',
-  `joinStep` tinyint(4) DEFAULT 1,
+  `isCert` tinyint(1) DEFAULT 2,
   `fcmToken` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
@@ -74,17 +75,14 @@ CREATE TABLE `member` (
   KEY `memberSex` (`memberSex`),
   KEY `matchingSex` (`matchingSex`),
   KEY `chattingRoomId` (`chattingRoomId`),
-  CONSTRAINT `member_ibfk_1` FOREIGN KEY (`major`) REFERENCES `major` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `member_ibfk_3` FOREIGN KEY (`chattingTime`) REFERENCES `chattingTime` (`id`),
---  CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`),
-  CONSTRAINT `member_ibfk_5` FOREIGN KEY (`matchingSex`) REFERENCES `matchingSex` (`id`),
-  CONSTRAINT `member_ibfk_6` FOREIGN KEY (`chattingRoomId`) REFERENCES `chattingRoom` (`id`) ON DELETE SET NULL ON UPDATE SET NULL
+  CONSTRAINT `member_ibfk_major` FOREIGN KEY (`major`) REFERENCES `major` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `member_ibfk_chattingTime` FOREIGN KEY (`chattingTime`) REFERENCES `chattingTime` (`id`),
+  CONSTRAINT `member_ibfk_memberSex` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`),
+  CONSTRAINT `member_ibfk_matchingSex` FOREIGN KEY (`matchingSex`) REFERENCES `matchingSex` (`id`),
+  CONSTRAINT `member_ibfk_chattingRoomId` FOREIGN KEY (`chattingRoomId`) REFERENCES `chattingRoom` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
+  CONSTRAINT `member_ibfk_email` FOREIGN KEY (`email`) REFERENCES `memberVerification` (`memberEmail`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-CREATE TABLE `memberVerification` (
-  `memberEmail` varchar(320),
-  `verification` varchar(30),
-  PRIMARY KEY (`memberEmail`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE `refreshToken` (
   `id` int(11),
@@ -94,4 +92,3 @@ CREATE TABLE `refreshToken` (
 ALTER TABLE `refreshToken` ADD CONSTRAINT `refreshToken_ibfk_1` FOREIGN KEY (`id`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
-ALTER TABLE `member` ADD CONSTRAINT `member_ibfk_4` FOREIGN KEY (`memberSex`) REFERENCES `matchingSex` (`id`);

@@ -13,7 +13,6 @@ public class PushServiceImpl implements PushService {
     public void pushMessage(Message message) {
         try {
             String response = FirebaseMessaging.getInstance(FirebaseApp.getInstance("oclock")).send(message);
-            System.out.println("Successfully sent message: " + response);
         }catch (FirebaseMessagingException e){
             e.printStackTrace();
         }
