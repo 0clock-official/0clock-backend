@@ -3,6 +3,8 @@ package com.oclock.oclock.controller;
 import com.google.api.client.auth.oauth2.RefreshTokenRequest;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.RefreshRequest;
+import com.oclock.oclock.dto.response.ErrorMessage;
+import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.model.Role;
 import com.oclock.oclock.repository.MemberRepository;
 import com.oclock.oclock.rowmapper.MemberRowMapper;
@@ -39,12 +41,10 @@ public class AuthController {
       accessToken = member.newApiToken(jwt, new String[]{Role.USER.value()});
     }
     else {
-      ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()
-          .code("401")
-          .response("맞지 않는 재발급 토큰입니다.")
-          .build();
-      return new ResponseEntity<ResponseDto<?>>(response, HttpStatus.UNAUTHORIZED);
-
+      ErrorMessage errorMessage = ErrorMessage.builder()
+              .code(401)
+              .message("발급된적 없는 토큰입니다.").build();
+      throw new OClockException(errorMessage);
     }
 
     ResponseDto<?> response = ResponseDto.<AuthenticationResult>builder()

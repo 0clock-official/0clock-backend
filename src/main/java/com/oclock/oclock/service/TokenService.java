@@ -24,6 +24,6 @@ public class TokenService {
     List<RefreshToken> tokens = repository.findByRefreshToken(token);
     if (tokens.isEmpty()) return false;
     RefreshToken refreshToken = tokens.get(0);
-    return refreshToken.getId() == memberId ? true : false;
+    return refreshToken.getId().equals(memberId);
   }
 }

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: yeongink
+    active: prod
     include : secret
   application:
     name: oclock
