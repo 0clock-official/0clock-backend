@@ -16,7 +16,6 @@ import com.oclock.oclock.service.ChattingService;
 import com.oclock.oclock.service.MemberService;
 import com.oclock.oclock.service.PushService;
 import com.oclock.oclock.utils.TokenToID;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -24,7 +23,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -54,7 +52,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         // 엑세스 토큰 파싱 과정
         long memberId;
         try {
-            memberId = new TokenToID().getIdFromAccessToken(accessToken, jwt);
+            memberId = TokenToID.getIdFromToken(accessToken, jwt);
         }catch (Exception e){
             ErrorMessage errorMessage = ErrorMessage.builder()
                     .message("토큰이 유효하지 않습니다.")

@@ -36,9 +36,9 @@ public class RefreshTokenRepository {
         return jdbcTemplate.update(sql, refreshToken, id);
     }
 
-    public void deleteByEmail(String email) {
-        String sql = "DELETE FROM refreshToken WHERE email=?";
-        jdbcTemplate.update(sql, email);
+    public void deleteById(Long id) {
+        String sql = "DELETE FROM refreshToken WHERE id=?";
+        jdbcTemplate.update(sql, id);
     }
 
 }

@@ -6,6 +6,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class RefreshToken {
-    private String email;
+    private Long id;
     private String refreshToken;
 }

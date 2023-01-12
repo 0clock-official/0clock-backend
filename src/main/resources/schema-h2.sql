@@ -85,7 +85,7 @@ CREATE TABLE `member` (
 
 
 CREATE TABLE `refreshToken` (
-  `id` int(11),
+  `id` bigint(11),
   `refreshToken` varchar(320),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
