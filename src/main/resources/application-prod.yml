@@ -7,15 +7,6 @@ spring:
       path: /h2-console
       settings:
         web-allow-others: true  # 추가
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: "jdbc:h2:mem:oclock;MODE=MYSQL;DB_CLOSE_DELAY=-1"
-    username: sa
-    password:
-    hikari:
-      minimum-idle: 1
-      maximum-pool-size: 5
-      pool-name: H2_DB
   sql:
     init:
       mode: always
