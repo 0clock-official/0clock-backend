@@ -50,6 +50,7 @@
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="INFO_LOG"/>
     </root>
 
     <logger name="LogController" additivity="false">
