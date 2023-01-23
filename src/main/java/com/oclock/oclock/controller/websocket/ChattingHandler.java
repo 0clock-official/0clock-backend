@@ -34,7 +34,7 @@ import java.util.Map;
 @Component
 public class ChattingHandler extends TextWebSocketHandler {
     private enum ChattingType{
-        MESSAGE, TIME_CHANGE_REQ, TIME_CHANGE_ACCEPT, EXIT_CHATTINGROOM;
+        MESSAGE,MESSAGE_OK, TIME_CHANGE_REQ, TIME_CHANGE_ACCEPT, EXIT_CHATTINGROOM;
     }
     @Autowired
     private ChattingService chattingService;
@@ -106,6 +106,9 @@ public class ChattingHandler extends TextWebSocketHandler {
             Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.MESSAGE);
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             sendSocketMessage(textMessage,receiveMemberId);
+            Map<String,String > senderResponseMap = makeMessageMap("메세지 전송에 성공했습니다.",ChattingType.MESSAGE_OK);
+            TextMessage senderResponseMessage = new TextMessage(mapper.writeValueAsString(senderResponseMap));
+            session.sendMessage(senderResponseMessage);
         }else{ // 상대가 접속중이 아닌 경우 = 푸쉬 메시지 보내야 함.
             sendPushMessage(chattingMessage,receiveMemberId);
         }
