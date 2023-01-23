@@ -2,6 +2,7 @@ package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
+import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 
 import java.math.BigInteger;
@@ -16,7 +17,8 @@ public interface ChattingService {
     Member getChattingMember(Member requestMember,ChattingRoom chattingRoom); // 채팅 상대방 프로필 보기. 과거 참여했던 채팅방도 가능. 기록보유중이라면
     Member getChattingMember(Member requestMember); // 채팅 상대방 프로필 보기. 현재 참여중인 채팅방만 가능.
     void exitChattingRoom(Member requestMember); // 채팅방 나가기
-    void changeChattingTime(Member requestMember); // 채팅방 채팅 시간 변경
+    void changeChattingTime(Member requestMember,ChattingTime chattingTime); // 채팅방 채팅 시간 변경
+    void requestChangeChattingTime(Member requestMember, ChattingTime chattingTime);
     ChattingRoom getChattingRoom(Member requestMember, BigInteger chattingRoomId);
     ChattingRoom getChattingRoom(Member requestMember);
 }
