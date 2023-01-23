@@ -1,12 +1,14 @@
+SET foreign_key_checks = 0;
+
 drop TABLE if EXISTS chattingLog;
 drop TABLE if EXISTS chattingRoom;
 drop TABLE if EXISTS chattingTime;
-drop TABLE if EXISTS emailCode;
 drop TABLE if EXISTS major;
 drop TABLE if EXISTS matchingSex;
 drop TABLE if EXISTS member;
 drop TABLE if EXISTS memberSex;
-drop TABLE if EXISTS userVerification;
+drop TABLE if EXISTS memberVerification;
+drop TABLE if EXISTS refreshToken;
 
 CREATE TABLE `chattingLog` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -85,7 +87,7 @@ CREATE TABLE `member` (
 
 
 CREATE TABLE `refreshToken` (
-  `id` bigint(11),
+  `id` int(11) unsigned,
   `refreshToken` varchar(320),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
