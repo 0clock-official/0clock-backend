@@ -24,6 +24,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class ChattingHandler extends TextWebSocketHandler {
                 .build();
 
         // 채팅 전송
-        chattingService.sendMessage(chattingLog);
+        chattingService.sendMessage(chattingLog, LocalTime.now());
         if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
             Map<String,String> payloadMap = new HashMap<>();
             payloadMap.put("message",chattingMessage);

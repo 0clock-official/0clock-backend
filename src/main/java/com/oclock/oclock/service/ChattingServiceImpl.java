@@ -2,6 +2,7 @@ package com.oclock.oclock.service;
 
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
+import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.exception.OClockException;
@@ -17,27 +18,81 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Random;
+
+import static com.oclock.oclock.dto.ChattingTime.*;
+
 @Service
 public class ChattingServiceImpl implements ChattingService {
 
-    @Autowired
-    private ChattingRepository chattingRepository;
-    @Autowired
-    private MemberRepository memberRepository;
-    @Autowired
-    private SecretTool secretTool;
+    private final ChattingRepository chattingRepository;
+    private final MemberRepository memberRepository;
+    private final SecretTool secretTool;
+
+    public ChattingServiceImpl(ChattingRepository chattingRepository, MemberRepository memberRepository, SecretTool secretTool) {
+        this.chattingRepository = chattingRepository;
+        this.memberRepository = memberRepository;
+        this.secretTool = secretTool;
+    }
+
     @Override
-    public void sendMessage(ChattingLog message) {
+    public void sendMessage(ChattingLog message,LocalTime now) {
         secretTool.encryptChatting(message);
-        if(chattingRepository.canAddChatting(message)) {
+        Member member = memberRepository.selectMemberById(message.getSendMember(),new MemberRowMapper<>());
+        ChattingRoom chattingRoom = chattingRepository.selectChattingRoom(member);
+        if(chattingRepository.canAddChatting(message) && isChattingTime(chattingRoom,now)) {
             chattingRepository.addChatting(message);
         }else{
             ErrorMessage errorMessage = ErrorMessage.builder()
                     .message("유효하지 않은 채팅입니다.")
                     .code(400).build();
             throw new OClockException(errorMessage);
+        }
+    }
+    private boolean isChattingTime(ChattingRoom chattingRoom,LocalTime now){
+        LocalTime start;
+        LocalTime end;
+        switch (chattingRoom.getChattingTime()){
+            case TEN:
+                start = LocalTime.of(22,0);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case TEN_HALF:
+                start = LocalTime.of(22,30);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case ELEVEN:
+                start = LocalTime.of(23,0);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case ELEVEN_HALF:
+                start = LocalTime.of(23,30);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case ZERO:
+                start = LocalTime.of(0,0);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case ZERO_HALF:
+                start = LocalTime.of(0,30);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case ONE:
+                start = LocalTime.of(1,0);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case ONE_HALF:
+                start = LocalTime.of(1,30);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            case TWO:
+                start = LocalTime.of(2,0);
+                end = start.plusHours(1);
+                return start.isBefore(now) && end.isAfter(now);
+            default:
+                return false;
         }
     }
 

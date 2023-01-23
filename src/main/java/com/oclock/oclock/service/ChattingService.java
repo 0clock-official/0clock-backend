@@ -6,10 +6,11 @@ import com.oclock.oclock.dto.Member;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface ChattingService {
-    void sendMessage(ChattingLog message); // 메세지 전송
+    void sendMessage(ChattingLog message, LocalTime now); // 메세지 전송
     BigInteger randomMatching(Member requestMember); // 랜덤 상대와 채팅방 생성
     List<ChattingLog> getMonthlyChattingLogs(Member requestMember, ChattingRoom chattingRoom, Timestamp startTime); // 월별 채팅기록 불러오기
     Member getChattingMember(Member requestMember,ChattingRoom chattingRoom); // 채팅 상대방 프로필 보기. 과거 참여했던 채팅방도 가능. 기록보유중이라면
