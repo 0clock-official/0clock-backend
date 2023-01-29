@@ -170,6 +170,12 @@ public class ChattingHandler extends TextWebSocketHandler {
     }
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        for (long key:memberIdSessionMap.keySet()) {
+            if(memberIdSessionMap.get(key).equals(session)){
+                memberIdSessionMap.remove(session);
+                break;
+            }
+        }
         super.afterConnectionClosed(session, status);
     }
 }
