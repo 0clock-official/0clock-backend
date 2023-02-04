@@ -2,6 +2,7 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
+import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 import com.oclock.oclock.rowmapper.ChattingLogRowMapper;
 import com.oclock.oclock.rowmapper.ChattingRoomRowMapper;
@@ -103,8 +104,31 @@ public class JdbcChattingRepository implements ChattingRepository{
     }
 
     @Override
-    public void updateChattingRoomTime(Member requestMember) {
+    public void updateChattingRoomTime(Member requestMember, int chattingTime, ChattingRoom chattingRoom) {
+        String sql = "update chattingRoom set chattingTime = ? where id = ?";
+        jdbcTemplate.update(sql,chattingTime,chattingRoom.getId());
+    }
 
+    @Override
+    public void addChattingRoomTimeChangeRequest(Member member, int chattingTime, ChattingRoom chattingRoom) {
+        String sql = "insert into chattingTimeChangeLog(chattingTime, chattingRoomId) values (?,?)";
+        jdbcTemplate.update(sql,chattingTime,chattingRoom.getId());
+    }
+
+    @Override
+    public void deleteChattingRoomTimeChangeRequest(ChattingRoom chattingRoom) {
+        String sql = "delete from chattingTimeChangeLog where chattingRoomId = ?";
+        jdbcTemplate.update(sql,chattingRoom.getId());
+    }
+
+    @Override
+    public int selectChattingRoomTimeChangeRequest(ChattingRoom chattingRoom) {
+        String sql ="select chattingTime from chattingTimeChangeLog where chattingRoomId =?";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class,chattingRoom.getId());
+        }catch (Exception e){
+            return -1;
+        }
     }
 
     @Override

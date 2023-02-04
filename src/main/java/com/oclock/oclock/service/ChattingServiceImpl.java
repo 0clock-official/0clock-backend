@@ -170,13 +170,27 @@ public class ChattingServiceImpl implements ChattingService {
     }
 
     @Override
-    public void changeChattingTime(Member requestMember,ChattingTime chattingTime) {
-        chattingRepository.updateChattingRoomTime(requestMember);
+    public void acceptChangeChattingTime(Member requestMember, int chattingTime) {
+        ChattingRoom chattingRoom = chattingRepository.selectChattingRoom(requestMember);
+        chattingRepository.updateChattingRoomTime(requestMember,chattingTime,chattingRoom);
+        chattingRepository.deleteChattingRoomTimeChangeRequest(chattingRoom);
     }
 
     @Override
-    public void requestChangeChattingTime(Member requestMember, ChattingTime chattingTime) {
+    public void rejectChangeChattingTime(Member requestMember) {
+        ChattingRoom chattingRoom = chattingRepository.selectChattingRoom(requestMember);
+        chattingRepository.deleteChattingRoomTimeChangeRequest(chattingRoom);
+    }
 
+    @Override
+    public void requestChangeChattingTime(Member requestMember, int chattingTime) {
+        ChattingRoom chattingRoom = chattingRepository.selectChattingRoom(requestMember);
+        chattingRepository.addChattingRoomTimeChangeRequest(requestMember,chattingTime,chattingRoom);
+    }
+
+    @Override
+    public int getRequestChangeChattingTime(ChattingRoom chattingRoom) {
+        return chattingRepository.selectChattingRoomTimeChangeRequest(chattingRoom);
     }
 
     @Override

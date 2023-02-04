@@ -9,6 +9,7 @@ drop TABLE if EXISTS member;
 drop TABLE if EXISTS memberSex;
 drop TABLE if EXISTS memberVerification;
 drop TABLE if EXISTS refreshToken;
+drop TABLE if EXISTS chattingTimeChangeLog;
 
 CREATE TABLE `chattingLog` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -94,3 +95,15 @@ CREATE TABLE `refreshToken` (
 ALTER TABLE `refreshToken` ADD CONSTRAINT `refreshToken_ibfk_1` FOREIGN KEY (`id`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD CONSTRAINT `chattingroom_ibfk_2` FOREIGN KEY (`member1`) REFERENCES `member` (`id`);
 ALTER TABLE `chattingRoom` ADD  CONSTRAINT `chattingroom_ibfk_3` FOREIGN KEY (`member2`) REFERENCES `member` (`id`);
+
+CREATE TABLE `chattingTimeChangeLog` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `chattingTime` tinyint(4) unsigned NOT NULL,
+  `chattingRoomId` bigint(20) unsigned NOT NULL,
+  `accept` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `chattingTime` (`chattingTime`),
+  KEY `chattingRoomId` (`chattingRoomId`),
+  CONSTRAINT `chattingtimechangelog_ibfk_chattingTime` FOREIGN KEY (`chattingTime`) REFERENCES `chattingTime` (`id`),
+  CONSTRAINT `chattingtimechangelog_ibfk_chattingRoom` FOREIGN KEY (`chattingRoomId`) REFERENCES `chattingRoom` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

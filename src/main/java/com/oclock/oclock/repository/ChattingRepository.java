@@ -2,6 +2,7 @@ package com.oclock.oclock.repository;
 
 import com.oclock.oclock.dto.ChattingLog;
 import com.oclock.oclock.dto.ChattingRoom;
+import com.oclock.oclock.dto.ChattingTime;
 import com.oclock.oclock.dto.Member;
 
 import java.math.BigInteger;
@@ -16,7 +17,10 @@ public interface ChattingRepository {
     boolean canCreateChattingRoom(ChattingRoom chattingRoom);
     void exitChattingRoom(Member member);
     Member selectChattingMember(Member requestMember);
-    void updateChattingRoomTime(Member requestMember);
+    void updateChattingRoomTime(Member requestMember, int chattingTime,ChattingRoom chattingRoom);
+    void addChattingRoomTimeChangeRequest(Member member,int chattingTime, ChattingRoom chattingRoom);
+    void deleteChattingRoomTimeChangeRequest(ChattingRoom chattingRoom);
+    int selectChattingRoomTimeChangeRequest(ChattingRoom chattingRoom);
     ChattingRoom selectChattingRoom(Member requestMember, BigInteger chattingRoomId);
     ChattingRoom selectChattingRoom(Member requestMember);
 }

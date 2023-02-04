@@ -34,17 +34,19 @@ import java.util.Map;
 @Component
 public class ChattingHandler extends TextWebSocketHandler {
     private enum ChattingType{
-        MESSAGE,MESSAGE_OK, TIME_CHANGE_REQ, TIME_CHANGE_ACCEPT, EXIT_CHATTINGROOM;
+        MESSAGE,MESSAGE_OK, TIME_CHANGE_REQ, TIME_CHANGE_ACCEPT,TIME_CHANGE_REJECT, EXIT_CHATTINGROOM;
     }
-    @Autowired
-    private ChattingService chattingService;
-    @Autowired
-    private MemberService memberService;
-    @Autowired
-    private PushService pushService;
+    private final ChattingService chattingService;
+    private final MemberService memberService;
+    private final PushService pushService;
+    private final Jwt jwt;
 
-    @Autowired
-    private Jwt jwt;
+    public ChattingHandler(ChattingService chattingService, MemberService memberService, PushService pushService, Jwt jwt) {
+        this.chattingService = chattingService;
+        this.memberService = memberService;
+        this.pushService = pushService;
+        this.jwt = jwt;
+    }
 
     private static final Map<Long,WebSocketSession> memberIdSessionMap = new HashMap<>();
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -67,6 +69,9 @@ public class ChattingHandler extends TextWebSocketHandler {
                 break;
             case EXIT_CHATTINGROOM:
                 exitChattingRoom(session,paseMap);
+                break;
+            case TIME_CHANGE_REJECT:
+                sendTimeChangeReject(session,paseMap);
                 break;
             default:
                 ErrorMessage errorMessage = ErrorMessage.builder()
@@ -145,11 +150,47 @@ public class ChattingHandler extends TextWebSocketHandler {
                 .setToken(receiver.getFcmToken()).build();
         pushService.pushMessage(pushMessage);
     }
-    private void sendTimeChangeReq(WebSocketSession session,Map<String ,String> parseMap){
+    private void sendTimeChangeReq(WebSocketSession session,Map<String ,String> parseMap) throws Exception {
+        String accessToken = parseMap.get("Authorization");
+        int chattingTime = Integer.parseInt(parseMap.get("message"));
+        long memberId = getIdFromAccessToken(accessToken);
+        Member member = memberService.findById(memberId,new MemberRowMapper<>());
+        chattingService.requestChangeChattingTime(member,chattingTime);
+        Map<String,String> senderResponseMap = makeMessageMap("채팅 시간 변경 요청에 성공했습니다.",ChattingType.TIME_CHANGE_REQ);
+        TextMessage senderResponseMessage = new TextMessage(mapper.writeValueAsString(senderResponseMap));
+        session.sendMessage(senderResponseMessage);
 
+        ChattingRoom chattingRoom = chattingService.getChattingRoom(member);
+        long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
+        String chattingMessage = "채팅 시간 변경요청이 들어왔습니다 : {?}".replace("?",chattingTime+"");
+        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+            Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.TIME_CHANGE_REQ);
+            TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
+            sendSocketMessage(textMessage,receiveMemberId);
+        }else{ // 상대가 접속중이 아닌 경우 = 푸쉬 메시지 보내야 함.
+            sendPushMessage(chattingMessage,receiveMemberId);
+        }
     }
-    private void sendTimeChangeAccept(WebSocketSession session,Map<String ,String> parseMap){
+    private void sendTimeChangeAccept(WebSocketSession session,Map<String ,String> parseMap) throws Exception{
+        String accessToken = parseMap.get("Authorization");
+        long memberId = getIdFromAccessToken(accessToken);
+        Member member = memberService.findById(memberId,new MemberRowMapper<>());
+        Map<String,String> senderResponseMap = makeMessageMap("채팅 시간 변경을 수락했습니다.",ChattingType.TIME_CHANGE_ACCEPT);
+        TextMessage senderResponseMessage = new TextMessage(mapper.writeValueAsString(senderResponseMap));
+        session.sendMessage(senderResponseMessage);
 
+        ChattingRoom chattingRoom = chattingService.getChattingRoom(member);
+        int chattingTime = chattingService.getRequestChangeChattingTime(chattingRoom);
+        chattingService.acceptChangeChattingTime(member,chattingTime);
+        long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
+        String chattingMessage = "채팅시간 변경이 수락되었습니다 {?}".replace("?",chattingTime+"");
+        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+            Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.TIME_CHANGE_ACCEPT);
+            TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
+            sendSocketMessage(textMessage,receiveMemberId);
+        }else{ // 상대가 접속중이 아닌 경우 = 푸쉬 메시지 보내야 함.
+            sendPushMessage(chattingMessage,receiveMemberId);
+        }
     }
     private void exitChattingRoom(WebSocketSession session,Map<String ,String> parseMap) throws Exception {
         String accessToken = parseMap.get("Authorization");
@@ -167,6 +208,25 @@ public class ChattingHandler extends TextWebSocketHandler {
             sendPushMessage(chattingMessage,receiveMemberId);
         }
         session.close();
+    }
+    private void sendTimeChangeReject(WebSocketSession session,Map<String ,String> parseMap) throws Exception{
+        String accessToken = parseMap.get("Authorization");
+        long memberId = getIdFromAccessToken(accessToken);
+        Member member = memberService.findById(memberId,new MemberRowMapper<>());
+        Map<String,String> senderResponseMap = makeMessageMap("채팅 시간 변경을 거절했습니다.",ChattingType.TIME_CHANGE_REJECT);
+        TextMessage senderResponseMessage = new TextMessage(mapper.writeValueAsString(senderResponseMap));
+        session.sendMessage(senderResponseMessage);
+
+        ChattingRoom chattingRoom = chattingService.getChattingRoom(member);
+        long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
+        String chattingMessage = "채팅시간 변경이 거절되었습니다.";
+        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+            Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.TIME_CHANGE_REJECT);
+            TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
+            sendSocketMessage(textMessage,receiveMemberId);
+        }else{ // 상대가 접속중이 아닌 경우 = 푸쉬 메시지 보내야 함.
+            sendPushMessage(chattingMessage,receiveMemberId);
+        }
     }
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
