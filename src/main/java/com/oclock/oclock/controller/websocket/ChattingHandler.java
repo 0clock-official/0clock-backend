@@ -107,7 +107,7 @@ public class ChattingHandler extends TextWebSocketHandler {
 
         // 채팅 전송
         chattingService.sendMessage(chattingLog, LocalTime.of(22,30));
-        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+        if(memberIdSessionMap.containsKey(receiveMemberId) &&memberIdSessionMap.get(receiveMemberId).isOpen() ){ // 상대방이 접속중인 경우
             Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.MESSAGE);
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             sendSocketMessage(textMessage,receiveMemberId);
@@ -163,7 +163,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         ChattingRoom chattingRoom = chattingService.getChattingRoom(member);
         long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
         String chattingMessage = "채팅 시간 변경요청이 들어왔습니다 : {?}".replace("?",chattingTime+"");
-        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+        if(memberIdSessionMap.containsKey(receiveMemberId) &&memberIdSessionMap.get(receiveMemberId).isOpen() ){ // 상대방이 접속중인 경우
             Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.TIME_CHANGE_REQ);
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             sendSocketMessage(textMessage,receiveMemberId);
@@ -184,7 +184,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         chattingService.acceptChangeChattingTime(member,chattingTime);
         long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
         String chattingMessage = "채팅시간 변경이 수락되었습니다 {?}".replace("?",chattingTime+"");
-        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+        if(memberIdSessionMap.containsKey(receiveMemberId) &&memberIdSessionMap.get(receiveMemberId).isOpen() ){ // 상대방이 접속중인 경우
             Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.TIME_CHANGE_ACCEPT);
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             sendSocketMessage(textMessage,receiveMemberId);
@@ -200,7 +200,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
         chattingService.exitChattingRoom(member);
         String chattingMessage = "상대방이 채팅방을 나갔습니다.";
-        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+        if(memberIdSessionMap.containsKey(receiveMemberId) &&memberIdSessionMap.get(receiveMemberId).isOpen() ){ // 상대방이 접속중인 경우
             Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.EXIT_CHATTINGROOM);
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             sendSocketMessage(textMessage,receiveMemberId);
@@ -220,7 +220,7 @@ public class ChattingHandler extends TextWebSocketHandler {
         ChattingRoom chattingRoom = chattingService.getChattingRoom(member);
         long receiveMemberId = chattingRoom.getMember1() == memberId? chattingRoom.getMember2():chattingRoom.getMember1();
         String chattingMessage = "채팅시간 변경이 거절되었습니다.";
-        if(memberIdSessionMap.containsKey(receiveMemberId) && session.isOpen()){ // 상대방이 접속중인 경우
+        if(memberIdSessionMap.containsKey(receiveMemberId) &&memberIdSessionMap.get(receiveMemberId).isOpen() ){ // 상대방이 접속중인 경우
             Map<String,String> payloadMap = makeMessageMap(chattingMessage,ChattingType.TIME_CHANGE_REJECT);
             TextMessage textMessage = new TextMessage(mapper.writeValueAsString(payloadMap));
             sendSocketMessage(textMessage,receiveMemberId);
