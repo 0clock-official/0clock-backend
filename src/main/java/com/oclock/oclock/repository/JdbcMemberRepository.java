@@ -77,6 +77,12 @@ public class JdbcMemberRepository implements MemberRepository{
     }
 
     @Override
+    public void updateMatchingSex(long memberId, int matchingSex) {
+        String sql = "update member set matchingSex=? where id = ?";
+        jdbcTemplate.update(sql,matchingSex,memberId);
+    }
+
+    @Override
     public int checkJoinStep(String email) {
         return selectMemberByEmail(email,new MemberRowMapper<>()).getJoinStep();
     }

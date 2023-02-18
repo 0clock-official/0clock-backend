@@ -55,11 +55,14 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void editMyself(long memberId,Map<String, String> body) {
         try {
-            if (body.get("nickname") != null && body.get("nickname").equals("")) {
+            if (body.get("nickname") != null && !body.get("nickname").equals("")) {
                 memberRepository.updateNickname(memberId, body.get("nickname"));
             }
-            if (body.get("chattingTime") != null && body.get("chattingTime").equals("")) {
+            if (body.get("chattingTime") != null && !body.get("chattingTime").equals("")) {
                 memberRepository.updateChattingTime(memberId, Integer.parseInt(body.get("chattingTime")));
+            }
+            if(body.get("matchingSex") !=null && !body.get("chattingTime").equals("")){
+                memberRepository.updateMatchingSex(memberId,Integer.parseInt(body.get("matchingSex")));
             }
         }catch (Exception e){
             ErrorMessage errorMessage = ErrorMessage.builder()

@@ -16,6 +16,7 @@ public interface MemberRepository {
 
     void updateNickname(long memberId, String nickname);
     void updateChattingTime(long memberId, int chattingTime);
+    void updateMatchingSex(long memberId, int matchingSex);
     int checkJoinStep(String email);
     void addMemberEmail(String email);
     void compareMemberEmailCode(String email, String code);
