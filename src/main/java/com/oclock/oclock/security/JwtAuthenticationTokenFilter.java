@@ -1,5 +1,7 @@
 package com.oclock.oclock.security;
 
+import com.oclock.oclock.dto.response.ErrorMessage;
+import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.exception.UnauthorizedException;
 import com.oclock.oclock.model.Email;
 import org.slf4j.Logger;
@@ -76,7 +78,10 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 } catch (Exception e) {
-                    log.warn("Jwt processing failed: {}", e.getMessage());
+                    ErrorMessage errorMessage = ErrorMessage.builder()
+                            .code(401)
+                            .message("토큰이 만료되었습니다.").build();
+                    throw new OClockException(errorMessage);
                 }
             }
         } else {
