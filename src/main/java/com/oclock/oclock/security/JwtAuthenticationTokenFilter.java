@@ -1,5 +1,6 @@
 package com.oclock.oclock.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oclock.oclock.dto.response.ErrorMessage;
 import com.oclock.oclock.exception.OClockException;
 import com.oclock.oclock.exception.UnauthorizedException;
@@ -81,7 +82,12 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
                     ErrorMessage errorMessage = ErrorMessage.builder()
                             .code(401)
                             .message("토큰이 만료되었습니다.").build();
-                    throw new OClockException(errorMessage);
+                    String err = new ObjectMapper().writeValueAsString(errorMessage);
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().print(err);
+                    return;
                 }
             }
         } else {
